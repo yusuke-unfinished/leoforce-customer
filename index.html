@@ -8,7 +8,7 @@
     <!-- デザイン用CSS (Tailwind) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- React本体 (UMD版: ブラウザで直接動くバージョン) -->
+    <!-- React本体 (UMD版) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
@@ -26,11 +26,10 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        // Reactの機能をグローバル変数から取り出し
         const { useState } = React;
         const { createRoot } = ReactDOM;
 
-        // --- アイコンコンポーネント定義 (外部読み込みエラーを防ぐため内蔵化) ---
+        // --- アイコンコンポーネント定義 ---
         const IconBase = ({ children, className }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>
         );
@@ -50,23 +49,20 @@
         const Clock = ({className}) => <IconBase className={className}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></IconBase>;
         const Send = ({className}) => <IconBase className={className}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></IconBase>;
 
-        // --- メインコンポーネント ---
         function ContractForm() {
-            // フォームの状態管理
+            // ▼▼▼ ここにGASのウェブアプリURLを貼り付けてください ▼▼▼
+            const GAS_WEB_APP_URL = "ここにGASのウェブアプリURLを貼り付け"; 
+            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
             const [formData, setFormData] = useState({
-                // 基本情報
                 contractType: '自社',
                 contractorName: '',
                 postalCode: '',
                 address: '',
                 phone: '',
                 email: '',
-                
-                // 契約・商材情報
                 contractAmount: '',
                 selectedProducts: [],
-                
-                // 商材詳細
                 solarManufacturer: '',
                 solarCapacity: '',
                 batteryManufacturer: '',
@@ -75,21 +71,18 @@
                 ecoCuteCapacity: '',
                 v2hManufacturer: '',
                 ihManufacturer: '',
-                
-                // 担当・施工
                 apStaffName: '',
                 clStaffName: '',
                 surveyDate: '',
                 constructionDate: '',
                 isConstructionUndecided: false,
-                
+                constructionShop: '', // 追加: 担当施工店
                 notes: ''
             });
 
             const [status, setStatus] = useState('idle');
             const [errorMessage, setErrorMessage] = useState('');
 
-            // 商材リスト
             const PRODUCT_OPTIONS = [
                 { id: 'solar', label: 'ソーラーパネル' },
                 { id: 'battery', label: '蓄電池' },
@@ -98,16 +91,8 @@
                 { id: 'ih', label: 'IH' },
             ];
 
-            // 設定値（ダミー）
-            const CONFIG = {
-                kintoneAppId: 'YOUR_KINTONE_APP_ID',
-                lineGroupId: 'YOUR_LINE_GROUP_ID' 
-            };
-
-            // 入力ハンドラ
             const handleChange = (e) => {
                 const { name, value, type, checked } = e.target;
-                
                 if (type === 'checkbox') {
                     if (name === 'isConstructionUndecided') {
                         setFormData(prev => ({ ...prev, [name]: checked }));
@@ -126,59 +111,36 @@
                 }
             };
 
-            const handlePostalCodeBlur = () => {
-                // 住所検索APIなどの処理場所
-            };
+            const handlePostalCodeBlur = () => {};
 
             const handleSubmit = async (e) => {
                 e.preventDefault();
                 setStatus('loading');
                 setErrorMessage('');
 
+                // GASのURLが設定されていない場合の警告
+                if (GAS_WEB_APP_URL === "ここにGASのウェブアプリURLを貼り付け") {
+                    alert("コード内の 'GAS_WEB_APP_URL' にGASのデプロイURLを設定してください。");
+                    setStatus('idle');
+                    return;
+                }
+
                 try {
-                    // データ構築ロジック
-                    const kintoneBody = {
-                        app: CONFIG.kintoneAppId,
-                        record: {
-                            contract_type: { value: formData.contractType },
-                            contractor_name: { value: formData.contractorName },
-                            // ... その他のフィールド
+                    // GASへ送信 (CORS対策のため、headersはtext/plainを使用)
+                    const response = await fetch(GAS_WEB_APP_URL, {
+                        method: "POST",
+                        body: JSON.stringify(formData),
+                        headers: {
+                            "Content-Type": "text/plain;charset=utf-8"
                         }
-                    };
+                    });
 
-                    console.log('Sending to Kintone:', kintoneBody);
+                    // GASからの応答確認
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
 
-                    // LINEメッセージ構築
-                    let productDetailsText = '';
-                    if (formData.selectedProducts.includes('solar')) productDetailsText += `  ☀️ ソーラー: ${formData.solarManufacturer} (${formData.solarCapacity}kW)\n`;
-                    if (formData.selectedProducts.includes('battery')) productDetailsText += `  🔋 蓄電池: ${formData.batteryManufacturer} (${formData.batteryCapacity}kWh)\n`;
-                    if (formData.selectedProducts.includes('ecocute')) productDetailsText += `  💧 エコキュート: ${formData.ecoCuteManufacturer} (${formData.ecoCuteCapacity}L)\n`;
-                    if (formData.selectedProducts.includes('v2h')) productDetailsText += `  🚗 V2H: ${formData.v2hManufacturer}\n`;
-                    if (formData.selectedProducts.includes('ih')) productDetailsText += `  🍳 IH: ${formData.ihManufacturer}\n`;
-
-                    const constructionDateText = formData.isConstructionUndecided 
-                        ? '未定' 
-                        : formData.constructionDate ? new Date(formData.constructionDate).toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '未入力';
-
-                    const surveyDateText = formData.surveyDate 
-                        ? new Date(formData.surveyDate).toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
-                        : '未入力';
-
-                    const lineMessage = {
-                        to: CONFIG.lineGroupId,
-                        messages: [
-                            {
-                                type: 'text',
-                                text: `🎉【成約速報】🎉\n\n担当: AP[${formData.apStaffName}] / CL[${formData.clStaffName}]\n契約種別: ${formData.contractType}\n\n■お客様: ${formData.contractorName} 様\n■住所: ${formData.address}\n■契約金額: ¥${Number(formData.contractAmount).toLocaleString()}\n\n■商材詳細:\n${productDetailsText || '  なし'}\n■スケジュール:\n  現調: ${surveyDateText}\n  施工: ${constructionDateText}\n\n事務局は契約処理を進めてください！`
-                            }
-                        ]
-                    };
-
-                    console.log('Sending to LINE:', lineMessage);
-
-                    // 送信シミュレーション（1.5秒待機）
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                    
+                    // 成功
                     setStatus('success');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -212,6 +174,7 @@
                     surveyDate: '',
                     constructionDate: '',
                     isConstructionUndecided: false,
+                    constructionShop: '', // 追加: 担当施工店
                     notes: ''
                 });
                 setStatus('idle');
@@ -220,8 +183,6 @@
             return (
                 <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 font-sans text-slate-900">
                     <div className="max-w-3xl mx-auto">
-                        
-                        {/* ヘッダー */}
                         <div className="text-center mb-8">
                             <div className="flex justify-center mb-4">
                                 <div className="bg-gradient-to-br from-yellow-400 to-orange-500 p-4 rounded-full shadow-lg">
@@ -236,9 +197,7 @@
                             </p>
                         </div>
 
-                        {/* メインフォームエリア */}
                         <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-200">
-                            
                             {status === 'success' ? (
                                 <div className="p-10 text-center animation-fade-in">
                                     <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-6">
@@ -255,14 +214,11 @@
                                 </div>
                             ) : (
                                 <form className="divide-y divide-slate-100" onSubmit={handleSubmit}>
-                                    
-                                    {/* 基本情報 */}
                                     <div className="p-6 sm:p-8 space-y-6">
                                         <h3 className="text-lg font-bold text-slate-900 flex items-center">
                                             <User className="w-5 h-5 mr-2 text-blue-500" />
                                             お客様情報
                                         </h3>
-
                                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                             <div className="sm:col-span-1">
                                                 <label className="block text-sm font-medium text-slate-700">契約種別 <span className="text-red-500">*</span></label>
@@ -272,12 +228,10 @@
                                                 </select>
                                             </div>
                                         </div>
-
                                         <div>
                                             <label className="block text-sm font-medium text-slate-700">契約者名（お客様名） <span className="text-red-500">*</span></label>
                                             <input type="text" name="contractorName" required className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-slate-300 rounded-md py-3 px-3 border" placeholder="例：山田 太郎" value={formData.contractorName} onChange={handleChange} />
                                         </div>
-
                                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
                                             <div className="sm:col-span-1">
                                                 <label className="block text-sm font-medium text-slate-700">郵便番号</label>
@@ -291,7 +245,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
                                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                             <div>
                                                 <label className="block text-sm font-medium text-slate-700">電話番号 <span className="text-red-500">*</span></label>
@@ -309,14 +262,11 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    {/* 商材情報 */}
                                     <div className="p-6 sm:p-8 space-y-6 bg-slate-50">
                                         <h3 className="text-lg font-bold text-slate-900 flex items-center">
                                             <Zap className="w-5 h-5 mr-2 text-yellow-500" />
                                             契約・商材情報
                                         </h3>
-
                                         <div>
                                             <label className="block text-sm font-medium text-slate-700">契約金額 (税込) <span className="text-red-500">*</span></label>
                                             <div className="mt-1 relative rounded-md shadow-sm max-w-xs">
@@ -325,7 +275,6 @@
                                                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><span className="text-slate-500 sm:text-sm">円</span></div>
                                             </div>
                                         </div>
-
                                         <div>
                                             <span className="block text-sm font-medium text-slate-700 mb-2">商材情報（複数選択可） <span className="text-red-500">*</span></span>
                                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -337,7 +286,6 @@
                                                 ))}
                                             </div>
                                         </div>
-
                                         <div className="space-y-4 border-t border-slate-200 pt-4 mt-4">
                                             {formData.selectedProducts.includes('solar') && (
                                                 <div className="bg-white p-4 rounded-md border border-yellow-200 shadow-sm animate-fade-in-up">
@@ -354,7 +302,6 @@
                                                     </div>
                                                 </div>
                                             )}
-
                                             {formData.selectedProducts.includes('battery') && (
                                                 <div className="bg-white p-4 rounded-md border border-green-200 shadow-sm animate-fade-in-up">
                                                     <h4 className="font-bold text-green-700 mb-3 flex items-center"><BatteryCharging className="w-4 h-4 mr-1"/> 蓄電池詳細</h4>
@@ -370,7 +317,6 @@
                                                     </div>
                                                 </div>
                                             )}
-
                                             {formData.selectedProducts.includes('ecocute') && (
                                                 <div className="bg-white p-4 rounded-md border border-blue-200 shadow-sm animate-fade-in-up">
                                                     <h4 className="font-bold text-blue-700 mb-3 flex items-center"><Home className="w-4 h-4 mr-1"/> エコキュート詳細</h4>
@@ -386,7 +332,6 @@
                                                     </div>
                                                 </div>
                                             )}
-
                                             {formData.selectedProducts.includes('v2h') && (
                                                 <div className="bg-white p-4 rounded-md border border-indigo-200 shadow-sm animate-fade-in-up">
                                                     <h4 className="font-bold text-indigo-700 mb-3 flex items-center"><Zap className="w-4 h-4 mr-1"/> V2H詳細</h4>
@@ -396,7 +341,6 @@
                                                     </div>
                                                 </div>
                                             )}
-
                                             {formData.selectedProducts.includes('ih') && (
                                                 <div className="bg-white p-4 rounded-md border border-red-200 shadow-sm animate-fade-in-up">
                                                     <h4 className="font-bold text-red-700 mb-3 flex items-center"><Zap className="w-4 h-4 mr-1"/> IH詳細</h4>
@@ -408,14 +352,11 @@
                                             )}
                                         </div>
                                     </div>
-
-                                    {/* 担当・施工情報 */}
                                     <div className="p-6 sm:p-8 space-y-6">
                                         <h3 className="text-lg font-bold text-slate-900 flex items-center">
                                             <Briefcase className="w-5 h-5 mr-2 text-indigo-500" />
                                             担当・施工情報
                                         </h3>
-
                                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                             <div>
                                                 <label className="block text-sm font-medium text-slate-700">AP担当者名 <span className="text-red-500">*</span></label>
@@ -426,15 +367,12 @@
                                                 <input type="text" name="clStaffName" required value={formData.clStaffName} onChange={handleChange} className="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border py-3 px-3" placeholder="クローザー名" />
                                             </div>
                                         </div>
-
                                         <div className="border-t border-slate-200 my-4"></div>
-
                                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                             <div>
                                                 <label className="block text-sm font-medium text-slate-700 flex items-center"><Wrench className="w-4 h-4 mr-1 text-slate-400" /> 現調日 (日時)</label>
                                                 <input type="datetime-local" name="surveyDate" className="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border py-2 px-3" value={formData.surveyDate} onChange={handleChange} />
                                             </div>
-
                                             <div>
                                                 <div className="flex justify-between items-center mb-1">
                                                     <label className="block text-sm font-medium text-slate-700 flex items-center"><Clock className="w-4 h-4 mr-1 text-slate-400" /> 施工日 (日時)</label>
@@ -446,7 +384,17 @@
                                                 <input type="datetime-local" name="constructionDate" disabled={formData.isConstructionUndecided} className={`mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border py-2 px-3 ${formData.isConstructionUndecided ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : ''}`} value={formData.constructionDate} onChange={handleChange} />
                                             </div>
                                         </div>
-
+                                        {/* 追加: 担当施工店 */}
+                                        <div className="mt-4">
+                                            <label className="block text-sm font-medium text-slate-700">担当施工店</label>
+                                            <select name="constructionShop" value={formData.constructionShop} onChange={handleChange} className="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                                <option value="">選択してください</option>
+                                                <option value="APC">APC</option>
+                                                <option value="テクノホーム">テクノホーム</option>
+                                                <option value="TERRA">TERRA</option>
+                                                <option value="その他">その他(※備考欄に記述)</option>
+                                            </select>
+                                        </div>
                                         <div>
                                             <label htmlFor="notes" className="block text-sm font-medium text-slate-700">備考・特記事項</label>
                                             <div className="mt-1">
@@ -454,8 +402,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    {/* エラーメッセージ */}
                                     {status === 'error' && (
                                         <div className="p-4 bg-red-50">
                                             <div className="flex">
@@ -467,8 +413,6 @@
                                             </div>
                                         </div>
                                     )}
-
-                                    {/* フッター */}
                                     <div className="px-6 py-8 bg-slate-50 sm:px-10 flex justify-end rounded-b-2xl">
                                         <button type="submit" disabled={status === 'loading'} className={`w-full sm:w-auto inline-flex justify-center items-center py-4 px-8 border border-transparent shadow-lg text-lg font-bold rounded-full text-white transition-all transform hover:-translate-y-0.5 ${status === 'loading' ? 'bg-slate-400 cursor-not-allowed shadow-none' : 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'}`}>
                                             {status === 'loading' ? (
@@ -484,11 +428,9 @@
                                             )}
                                         </button>
                                     </div>
-
                                 </form>
                             )}
                         </div>
-                        
                         <div className="mt-8 text-center">
                             <p className="text-xs text-slate-400 font-medium">営業管理システム © 2025 Solar Sales Co.</p>
                         </div>
