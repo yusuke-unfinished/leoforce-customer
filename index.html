@@ -121,9 +121,54 @@
                             契約・商材情報
                         </h3>
 
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">契約金額 (税込) <span class="text-red-500">*</span></label>
-                            <input type="number" id="contractAmount" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="2000000">
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <!-- 契約金額 -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">契約金額 (税抜) <span class="text-red-500">*</span></label>
+                                <input type="number" id="contractAmount" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border h-12" placeholder="2000000">
+                            </div>
+                            <!-- 支払い方法 -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">支払い方法 <span class="text-red-500">*</span></label>
+                                <select id="paymentMethod" required class="block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm h-12" onchange="togglePaymentDetails()">
+                                    <option value="">選択してください</option>
+                                    <option value="一括(1回)">一括(1回)</option>
+                                    <option value="一括(2回)">一括(2回)</option>
+                                    <option value="信販">信販</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 支払い方法の詳細エリア (動的表示) -->
+                        <div id="paymentDetailsArea" class="bg-blue-50 p-4 rounded-md border border-blue-200 hidden">
+                            
+                            <!-- 一括(1回) -->
+                            <div id="payment-single" class="hidden">
+                                <label class="block text-sm font-medium text-blue-900 mb-1">入金予定日 <span class="text-red-500">*</span></label>
+                                <input type="date" id="paymentDateSingle" class="block w-full border-blue-300 rounded-md shadow-sm h-12 px-3">
+                            </div>
+
+                            <!-- 一括(2回) -->
+                            <div id="payment-double" class="hidden space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-blue-900 mb-1">入金予定日(1回目) <span class="text-red-500">*</span></label>
+                                    <input type="date" id="paymentDateDouble1" class="block w-full border-blue-300 rounded-md shadow-sm h-12 px-3">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-blue-900 mb-1">入金予定日(2回目) <span class="text-red-500">*</span></label>
+                                    <input type="date" id="paymentDateDouble2" class="block w-full border-blue-300 rounded-md shadow-sm h-12 px-3">
+                                </div>
+                            </div>
+
+                            <!-- 信販 -->
+                            <div id="payment-credit" class="hidden">
+                                <label class="block text-sm font-medium text-blue-900 mb-1">信販会社 <span class="text-red-500">*</span></label>
+                                <select id="creditCompany" class="block w-full py-2 px-3 border border-blue-300 bg-white rounded-md shadow-sm h-12">
+                                    <option value="">選択してください</option>
+                                    <option value="アプラス">アプラス</option>
+                                    <option value="プレミア">プレミア</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div>
@@ -142,31 +187,31 @@
                             <div id="detail-solar" class="hidden bg-white p-4 rounded-md border border-yellow-200 shadow-sm">
                                 <h4 class="font-bold text-yellow-700 mb-3">☀️ ソーラーパネル詳細</h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="solarManufacturer" class="w-full border p-2 rounded"></div>
-                                    <div><label class="text-xs text-slate-500">システム容量 (kW)</label><input type="number" step="0.01" id="solarCapacity" class="w-full border p-2 rounded"></div>
+                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="solarManufacturer" class="w-full border p-2 rounded" placeholder="例：Qセルズ"></div>
+                                    <div><label class="text-xs text-slate-500">システム容量 (kW)</label><input type="number" step="0.01" id="solarCapacity" class="w-full border p-2 rounded" placeholder="例：5.5"></div>
                                 </div>
                             </div>
                             <div id="detail-battery" class="hidden bg-white p-4 rounded-md border border-green-200 shadow-sm">
                                 <h4 class="font-bold text-green-700 mb-3">🔋 蓄電池詳細</h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="batteryManufacturer" class="w-full border p-2 rounded"></div>
-                                    <div><label class="text-xs text-slate-500">蓄電容量 (kWh)</label><input type="number" step="0.01" id="batteryCapacity" class="w-full border p-2 rounded"></div>
+                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="batteryManufacturer" class="w-full border p-2 rounded" placeholder="例：ニチコン"></div>
+                                    <div><label class="text-xs text-slate-500">蓄電容量 (kWh)</label><input type="number" step="0.01" id="batteryCapacity" class="w-full border p-2 rounded" placeholder="例：9.8"></div>
                                 </div>
                             </div>
                             <div id="detail-ecocute" class="hidden bg-white p-4 rounded-md border border-blue-200 shadow-sm">
                                 <h4 class="font-bold text-blue-700 mb-3">💧 エコキュート詳細</h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="ecoCuteManufacturer" class="w-full border p-2 rounded"></div>
-                                    <div><label class="text-xs text-slate-500">タンク容量 (L)</label><input type="number" id="ecoCuteCapacity" class="w-full border p-2 rounded"></div>
+                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="ecoCuteManufacturer" class="w-full border p-2 rounded" placeholder="例：ダイキン"></div>
+                                    <div><label class="text-xs text-slate-500">タンク容量 (L)</label><input type="number" id="ecoCuteCapacity" class="w-full border p-2 rounded" placeholder="例：370"></div>
                                 </div>
                             </div>
                             <div id="detail-v2h" class="hidden bg-white p-4 rounded-md border border-indigo-200 shadow-sm">
                                 <h4 class="font-bold text-indigo-700 mb-3">🚗 V2H詳細</h4>
-                                <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="v2hManufacturer" class="w-full border p-2 rounded"></div>
+                                <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="v2hManufacturer" class="w-full border p-2 rounded" placeholder="例：ニチコン"></div>
                             </div>
                             <div id="detail-ih" class="hidden bg-white p-4 rounded-md border border-red-200 shadow-sm">
                                 <h4 class="font-bold text-red-700 mb-3">🍳 IH詳細</h4>
-                                <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="ihManufacturer" class="w-full border p-2 rounded"></div>
+                                <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="ihManufacturer" class="w-full border p-2 rounded" placeholder="例：パナソニック"></div>
                             </div>
                         </div>
                     </div>
@@ -273,6 +318,33 @@
             if(checkbox.checked) input.value = '';
         }
 
+        // 支払い方法の詳細表示切り替え
+        function togglePaymentDetails() {
+            const method = document.getElementById('paymentMethod').value;
+            const container = document.getElementById('paymentDetailsArea');
+            const single = document.getElementById('payment-single');
+            const double = document.getElementById('payment-double');
+            const credit = document.getElementById('payment-credit');
+
+            // 全て非表示にしてから
+            container.classList.add('hidden');
+            single.classList.add('hidden');
+            double.classList.add('hidden');
+            credit.classList.add('hidden');
+
+            // 選択に応じて表示
+            if (method === '一括(1回)') {
+                container.classList.remove('hidden');
+                single.classList.remove('hidden');
+            } else if (method === '一括(2回)') {
+                container.classList.remove('hidden');
+                double.classList.remove('hidden');
+            } else if (method === '信販') {
+                container.classList.remove('hidden');
+                credit.classList.remove('hidden');
+            }
+        }
+
         async function handleSubmit(event) {
             event.preventDefault();
             
@@ -292,10 +364,24 @@
             errorMessageDiv.classList.add('hidden');
 
             try {
-                // ▼▼▼ ここでデータをIDから直接取得して構築 ▼▼▼
                 // チェックボックスの収集
                 const selectedProducts = [];
                 document.querySelectorAll('input[name="products"]:checked').forEach(cb => selectedProducts.push(cb.value));
+
+                // 支払い方法の詳細値を取得
+                const paymentMethod = document.getElementById('paymentMethod').value;
+                let paymentDate1 = '';
+                let paymentDate2 = '';
+                let creditCompany = '';
+
+                if (paymentMethod === '一括(1回)') {
+                    paymentDate1 = document.getElementById('paymentDateSingle').value;
+                } else if (paymentMethod === '一括(2回)') {
+                    paymentDate1 = document.getElementById('paymentDateDouble1').value;
+                    paymentDate2 = document.getElementById('paymentDateDouble2').value;
+                } else if (paymentMethod === '信販') {
+                    creditCompany = document.getElementById('creditCompany').value;
+                }
 
                 const data = {
                     contractType: document.getElementById('contractType').value,
@@ -306,6 +392,11 @@
                     address: document.getElementById('address').value,
                     phone: document.getElementById('phone').value,
                     email: document.getElementById('email').value,
+                    
+                    paymentMethod: paymentMethod,
+                    paymentDate1: paymentDate1,
+                    paymentDate2: paymentDate2,
+                    creditCompany: creditCompany,
                     contractAmount: document.getElementById('contractAmount').value,
                     
                     selectedProducts: selectedProducts,
@@ -330,8 +421,6 @@
                     notes: document.getElementById('notes').value
                 };
 
-                console.log("送信データ:", data);
-
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: "POST",
                     body: JSON.stringify(data),
@@ -339,7 +428,6 @@
                 });
 
                 const result = await response.json();
-                console.log("レスポンス:", result);
 
                 if (result.status === 'error') {
                     throw new Error(result.message);
