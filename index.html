@@ -5,8 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>契約者登録フォーム</title>
     
+    <!-- ▼▼▼ 警告抑制スクリプト (Tailwind読み込みの前に配置) ▼▼▼ -->
+    <script>
+        (function() {
+            const originalWarn = console.warn;
+            console.warn = function(...args) {
+                // Tailwind CSSの特定の警告メッセージだけを無視する
+                if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
+                    return;
+                }
+                originalWarn.apply(console, args);
+            };
+        })();
+    </script>
+    <!-- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ -->
+
     <!-- デザイン用CSS (Tailwind CSS) -->
-    <!-- 本番運用でも警告が出ますが、機能には問題ないためこのまま使用します -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
@@ -387,6 +401,8 @@
         // フォーム送信処理
         async function handleSubmit(event) {
             event.preventDefault();
+            console.log("🚀 送信処理開始");
+
             const form = event.target;
             const submitBtn = document.getElementById('submit-btn');
             const btnIcon = document.getElementById('btn-icon');
@@ -397,6 +413,7 @@
 
             // URLチェック
             if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("ここにGAS")) {
+                console.error("❌ エラー: GAS_WEB_APP_URL が設定されていません。");
                 alert("GASのURLが設定されていません。コード内の GAS_WEB_APP_URL を書き換えてください。");
                 return;
             }
@@ -424,7 +441,10 @@
                 // チェックボックス（単一）の処理
                 data.isConstructionUndecided = document.getElementById('isConstructionUndecided').checked;
 
+                console.log("📦 送信データ:", data);
+
                 // 送信
+                console.log("📡 GASへデータを送信中...");
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: "POST",
                     body: JSON.stringify(data),
@@ -433,9 +453,15 @@
                     }
                 });
 
+                console.log("📥 レスポンス受信 Status:", response.status);
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
+
+                // レスポンス内容の確認
+                const result = await response.json();
+                console.log("✅ 送信成功 レスポンス:", result);
 
                 // 成功時の処理
                 document.getElementById('contract-form').classList.add('hidden');
@@ -443,7 +469,7 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
 
             } catch (error) {
-                console.error('Error:', error);
+                console.error('❌ 送信エラー:', error);
                 errorText.textContent = '送信に失敗しました。時間をおいて再度お試しください。';
                 errorMessageDiv.classList.remove('hidden');
             } finally {
@@ -453,6 +479,7 @@
                 btnIcon.classList.remove('hidden');
                 btnText.textContent = '契約を確定・報告する';
                 btnLoading.classList.add('hidden');
+                console.log("🏁 送信処理終了");
             }
         }
 
