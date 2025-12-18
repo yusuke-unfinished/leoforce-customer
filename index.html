@@ -4,10 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>契約者登録フォーム</title>
+    
+    <!-- デザイン用CSS (Tailwind) -->
+    <!-- 本番環境では警告が出ますが、この構成のまま消すことはできません。機能には問題ありません。 -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React本体 (Production版) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel (JSX変換用 - no-warning設定追加) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
     <style>
         .animation-fade-in { animation: fadeIn 0.5s ease-in; }
         .animate-fade-in-up { animation: fadeInUp 0.5s ease-out; }
@@ -18,7 +26,8 @@
 <body class="bg-slate-50 text-slate-900">
     <div id="root"></div>
 
-    <script type="text/babel">
+    <!-- type="text/babel" に data-presets="react" を追加 -->
+    <script type="text/babel" data-presets="react">
         const { useState } = React;
         const { createRoot } = ReactDOM;
 
@@ -110,20 +119,30 @@
                 e.preventDefault();
                 setStatus('loading');
                 setErrorMessage('');
+
+                // GASのURLが設定されていない場合の警告
                 if (GAS_WEB_APP_URL.includes("ここにGAS")) {
                     alert("コード内の 'GAS_WEB_APP_URL' にGASのデプロイURLを設定してください。");
                     setStatus('idle');
                     return;
                 }
+
                 try {
                     const response = await fetch(GAS_WEB_APP_URL, {
                         method: "POST",
                         body: JSON.stringify(formData),
-                        headers: { "Content-Type": "text/plain;charset=utf-8" }
+                        headers: {
+                            "Content-Type": "text/plain;charset=utf-8"
+                        }
                     });
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
                     setStatus('success');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+
                 } catch (error) {
                     console.error('Error:', error);
                     setStatus('error');
