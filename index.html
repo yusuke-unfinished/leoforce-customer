@@ -5,29 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>契約者登録フォーム</title>
     
-    <!-- ▼▼▼ 警告抑制スクリプト (Tailwind読み込みの前に配置) ▼▼▼ -->
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 警告抑制 -->
     <script>
         (function() {
             const originalWarn = console.warn;
             console.warn = function(...args) {
-                // Tailwind CSSの特定の警告メッセージだけを無視する
-                if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
-                    return;
-                }
+                if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
                 originalWarn.apply(console, args);
             };
         })();
     </script>
     
-    <!-- デザイン用CSS (Tailwind CSS) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
     <style>
         .fade-in { animation: fadeIn 0.5s ease-in; }
-        .fade-in-up { animation: fadeInUp 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
         .spinner {
             border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
@@ -37,13 +31,7 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* iOSでの日付入力の見た目を調整 */
-        input[type="date"], input[type="datetime-local"] {
-            -webkit-appearance: none;
-            appearance: none;
-            min-height: 3rem; /* 48px */
-        }
+        input[type="date"], input[type="datetime-local"] { appearance: none; min-height: 3rem; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans">
@@ -51,250 +39,177 @@
     <div class="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl mx-auto">
             
-            <!-- ヘッダー -->
             <div class="text-center mb-8">
                 <div class="flex justify-center mb-4">
                     <div class="bg-gradient-to-br from-yellow-400 to-orange-500 p-4 rounded-full shadow-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
                     </div>
                 </div>
-                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">
-                    契約者登録フォーム
-                </h2>
-                <p class="mt-2 text-sm text-slate-500">
-                    ご成約おめでとうございます！詳細情報を入力してください。
-                </p>
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">契約者登録フォーム</h2>
             </div>
 
-            <!-- メインコンテンツエリア -->
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-200">
                 
-                <!-- 送信完了画面 -->
+                <!-- 完了画面 -->
                 <div id="success-view" class="hidden p-10 text-center fade-in">
                     <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                     </div>
                     <h3 class="text-2xl font-bold text-slate-900 mb-2">登録完了！</h3>
-                    <p class="text-slate-600 mb-8 max-w-md mx-auto">
-                        Kintoneへの登録とLINEグループへの通知が完了しました。<br/>
-                        事務局にて確認作業に入ります。
-                    </p>
-                    <button onclick="resetForm()" class="w-full sm:w-auto inline-flex justify-center py-3 px-8 border border-transparent shadow-sm text-sm font-bold rounded-full text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                        続けて新しい契約を入力
-                    </button>
+                    <p class="text-slate-600 mb-8 max-w-md mx-auto">Kintoneへの登録とLINE通知が完了しました。</p>
+                    <button onclick="location.reload()" class="w-full sm:w-auto inline-flex justify-center py-3 px-8 border border-transparent shadow-sm text-sm font-bold rounded-full text-white bg-blue-600 hover:bg-blue-700 transition-colors">続けて入力する</button>
                 </div>
 
                 <!-- 入力フォーム -->
                 <form id="contract-form" class="divide-y divide-slate-100" onsubmit="handleSubmit(event)">
                     
-                    <!-- セクション1: 基本情報 -->
                     <div class="p-6 sm:p-8 space-y-6">
                         <h3 class="text-lg font-bold text-slate-900 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <svg class="w-5 h-5 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                             お客様情報
                         </h3>
 
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <!-- 契約種別 -->
-                            <div class="sm:col-span-1">
+                            <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">契約種別 <span class="text-red-500">*</span></label>
-                                <select name="contractType" required class="block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm h-12">
+                                <select id="contractType" required class="block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm h-12">
                                     <option value="自社">自社</option>
                                     <option value="FIT">FIT</option>
                                 </select>
                             </div>
-                            <!-- 契約日 -->
-                            <div class="sm:col-span-1">
+                            <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">契約日 <span class="text-red-500">*</span></label>
-                                <input type="date" name="contractDate" required class="block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm h-12">
+                                <input type="date" id="contractDate" required class="block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm h-12">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">契約者名（お客様名） <span class="text-red-500">*</span></label>
-                            <input type="text" name="contractorName" required class="focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-slate-300 rounded-md py-3 px-3 border" placeholder="例：山田 太郎">
+                            <input type="text" id="contractorName" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="例：山田 太郎">
                         </div>
-                        
-                        <!-- フリガナ -->
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">フリガナ <span class="text-red-500">*</span></label>
-                            <input type="text" name="furigana" required class="focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-slate-300 rounded-md py-3 px-3 border" placeholder="例：ヤマダ タロウ">
+                            <input type="text" id="furigana" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="例：ヤマダ タロウ">
                         </div>
 
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                             <div class="sm:col-span-1">
                                 <label class="block text-sm font-medium text-slate-700 mb-1">郵便番号</label>
-                                <input type="text" name="postalCode" class="focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-slate-300 rounded-md py-3 px-3 border" placeholder="123-4567">
+                                <input type="text" id="postalCode" class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="123-4567">
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block text-sm font-medium text-slate-700 mb-1">設置場所住所 <span class="text-red-500">*</span></label>
-                                <div class="relative rounded-md shadow-sm">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                                    </div>
-                                    <input type="text" name="address" required class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-slate-300 rounded-md py-3 border" placeholder="例：東京都千代田区...">
-                                </div>
+                                <input type="text" id="address" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="例：東京都千代田区...">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">電話番号 <span class="text-red-500">*</span></label>
-                                <div class="relative rounded-md shadow-sm">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                                    </div>
-                                    <input type="tel" name="phone" required class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-slate-300 rounded-md py-3 border" placeholder="090-1234-5678">
-                                </div>
+                                <input type="tel" id="phone" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="090-1234-5678">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">メールアドレス</label>
-                                <div class="relative rounded-md shadow-sm">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                                    </div>
-                                    <input type="email" name="email" class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-slate-300 rounded-md py-3 border" placeholder="example@email.com">
-                                </div>
+                                <input type="email" id="email" class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="example@email.com">
                             </div>
                         </div>
                     </div>
 
-                    <!-- セクション2: 商材情報 -->
                     <div class="p-6 sm:p-8 space-y-6 bg-slate-50">
                         <h3 class="text-lg font-bold text-slate-900 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-yellow-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            <svg class="w-5 h-5 mr-2 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                             契約・商材情報
                         </h3>
 
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">契約金額 (税込) <span class="text-red-500">*</span></label>
-                            <div class="relative rounded-md shadow-sm max-w-xs">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-                                </div>
-                                <input type="number" name="contractAmount" required class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-12 sm:text-sm border-slate-300 rounded-md py-3 border" placeholder="2000000">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <span class="text-slate-500 sm:text-sm">円</span>
-                                </div>
-                            </div>
+                            <input type="number" id="contractAmount" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="2000000">
                         </div>
 
                         <div>
                             <span class="block text-sm font-medium text-slate-700 mb-2">商材情報（複数選択可） <span class="text-red-500">*</span></span>
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 cursor-pointer">
-                                    <input type="checkbox" name="products" value="solar" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded" onchange="toggleDetails()">
-                                    <span class="ml-3 text-sm font-medium text-slate-900">ソーラーパネル</span>
-                                </label>
-                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 cursor-pointer">
-                                    <input type="checkbox" name="products" value="battery" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded" onchange="toggleDetails()">
-                                    <span class="ml-3 text-sm font-medium text-slate-900">蓄電池</span>
-                                </label>
-                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 cursor-pointer">
-                                    <input type="checkbox" name="products" value="ecocute" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded" onchange="toggleDetails()">
-                                    <span class="ml-3 text-sm font-medium text-slate-900">エコキュート</span>
-                                </label>
-                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 cursor-pointer">
-                                    <input type="checkbox" name="products" value="v2h" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded" onchange="toggleDetails()">
-                                    <span class="ml-3 text-sm font-medium text-slate-900">V2H</span>
-                                </label>
-                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 cursor-pointer">
-                                    <input type="checkbox" name="products" value="ih" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded" onchange="toggleDetails()">
-                                    <span class="ml-3 text-sm font-medium text-slate-900">IH</span>
-                                </label>
+                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer"><input type="checkbox" name="products" value="solar" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">ソーラーパネル</span></label>
+                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer"><input type="checkbox" name="products" value="battery" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">蓄電池</span></label>
+                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer"><input type="checkbox" name="products" value="ecocute" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">エコキュート</span></label>
+                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer"><input type="checkbox" name="products" value="v2h" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">V2H</span></label>
+                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer"><input type="checkbox" name="products" value="ih" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">IH</span></label>
                             </div>
                         </div>
 
-                        <!-- 商材詳細エリア -->
+                        <!-- 商材詳細 -->
                         <div id="product-details-container" class="space-y-4 border-t border-slate-200 pt-4 mt-4">
-                            <!-- ソーラー -->
-                            <div id="detail-solar" class="hidden bg-white p-4 rounded-md border border-yellow-200 shadow-sm fade-in-up">
-                                <h4 class="font-bold text-yellow-700 mb-3 flex items-center">☀️ ソーラーパネル詳細</h4>
+                            <div id="detail-solar" class="hidden bg-white p-4 rounded-md border border-yellow-200 shadow-sm">
+                                <h4 class="font-bold text-yellow-700 mb-3">☀️ ソーラーパネル詳細</h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div><label class="block text-xs font-medium text-slate-500 mb-1">メーカー名</label><input type="text" name="solarManufacturer" class="block w-full border-slate-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm border p-2" placeholder="例：Qセルズ"></div>
-                                    <div><label class="block text-xs font-medium text-slate-500 mb-1">システム容量 (kW)</label><input type="number" step="0.01" name="solarCapacity" class="block w-full border-slate-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm border p-2" placeholder="例：5.5"></div>
+                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="solarManufacturer" class="w-full border p-2 rounded"></div>
+                                    <div><label class="text-xs text-slate-500">システム容量 (kW)</label><input type="number" step="0.01" id="solarCapacity" class="w-full border p-2 rounded"></div>
                                 </div>
                             </div>
-                            <!-- 蓄電池 -->
-                            <div id="detail-battery" class="hidden bg-white p-4 rounded-md border border-green-200 shadow-sm fade-in-up">
-                                <h4 class="font-bold text-green-700 mb-3 flex items-center">🔋 蓄電池詳細</h4>
+                            <div id="detail-battery" class="hidden bg-white p-4 rounded-md border border-green-200 shadow-sm">
+                                <h4 class="font-bold text-green-700 mb-3">🔋 蓄電池詳細</h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div><label class="block text-xs font-medium text-slate-500 mb-1">メーカー名</label><input type="text" name="batteryManufacturer" class="block w-full border-slate-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm border p-2" placeholder="例：ニチコン"></div>
-                                    <div><label class="block text-xs font-medium text-slate-500 mb-1">蓄電容量 (kWh)</label><input type="number" step="0.01" name="batteryCapacity" class="block w-full border-slate-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm border p-2" placeholder="例：9.8"></div>
+                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="batteryManufacturer" class="w-full border p-2 rounded"></div>
+                                    <div><label class="text-xs text-slate-500">蓄電容量 (kWh)</label><input type="number" step="0.01" id="batteryCapacity" class="w-full border p-2 rounded"></div>
                                 </div>
                             </div>
-                            <!-- エコキュート -->
-                            <div id="detail-ecocute" class="hidden bg-white p-4 rounded-md border border-blue-200 shadow-sm fade-in-up">
-                                <h4 class="font-bold text-blue-700 mb-3 flex items-center">💧 エコキュート詳細</h4>
+                            <div id="detail-ecocute" class="hidden bg-white p-4 rounded-md border border-blue-200 shadow-sm">
+                                <h4 class="font-bold text-blue-700 mb-3">💧 エコキュート詳細</h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div><label class="block text-xs font-medium text-slate-500 mb-1">メーカー名</label><input type="text" name="ecoCuteManufacturer" class="block w-full border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border p-2" placeholder="例：ダイキン"></div>
-                                    <div><label class="block text-xs font-medium text-slate-500 mb-1">タンク容量 (L)</label><input type="number" name="ecoCuteCapacity" class="block w-full border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border p-2" placeholder="例：370"></div>
+                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="ecoCuteManufacturer" class="w-full border p-2 rounded"></div>
+                                    <div><label class="text-xs text-slate-500">タンク容量 (L)</label><input type="number" id="ecoCuteCapacity" class="w-full border p-2 rounded"></div>
                                 </div>
                             </div>
-                            <!-- V2H -->
-                            <div id="detail-v2h" class="hidden bg-white p-4 rounded-md border border-indigo-200 shadow-sm fade-in-up">
-                                <h4 class="font-bold text-indigo-700 mb-3 flex items-center">🚗 V2H詳細</h4>
-                                <div><label class="block text-xs font-medium text-slate-500 mb-1">メーカー名</label><input type="text" name="v2hManufacturer" class="block w-full border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border p-2" placeholder="例：ニチコン"></div>
+                            <div id="detail-v2h" class="hidden bg-white p-4 rounded-md border border-indigo-200 shadow-sm">
+                                <h4 class="font-bold text-indigo-700 mb-3">🚗 V2H詳細</h4>
+                                <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="v2hManufacturer" class="w-full border p-2 rounded"></div>
                             </div>
-                            <!-- IH -->
-                            <div id="detail-ih" class="hidden bg-white p-4 rounded-md border border-red-200 shadow-sm fade-in-up">
-                                <h4 class="font-bold text-red-700 mb-3 flex items-center">🍳 IH詳細</h4>
-                                <div><label class="block text-xs font-medium text-slate-500 mb-1">メーカー名</label><input type="text" name="ihManufacturer" class="block w-full border-slate-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm border p-2" placeholder="例：パナソニック"></div>
+                            <div id="detail-ih" class="hidden bg-white p-4 rounded-md border border-red-200 shadow-sm">
+                                <h4 class="font-bold text-red-700 mb-3">🍳 IH詳細</h4>
+                                <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="ihManufacturer" class="w-full border p-2 rounded"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- セクション3: 担当者・施工情報 -->
                     <div class="p-6 sm:p-8 space-y-6">
                         <h3 class="text-lg font-bold text-slate-900 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-indigo-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                            <svg class="w-5 h-5 mr-2 text-indigo-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
                             担当・施工情報
                         </h3>
 
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">AP担当者名 <span class="text-red-500">*</span></label>
-                                <input type="text" name="apStaffName" required class="block w-full border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border py-3 px-3" placeholder="アポインター名">
+                                <input type="text" id="apStaffName" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="アポインター名">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">CL担当者名 <span class="text-red-500">*</span></label>
-                                <input type="text" name="clStaffName" required class="block w-full border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border py-3 px-3" placeholder="クローザー名">
+                                <input type="text" id="clStaffName" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="クローザー名">
                             </div>
                         </div>
 
                         <div class="border-t border-slate-200 my-4"></div>
 
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <!-- 現調日 -->
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 flex items-center mb-1">
-                                    <svg class="w-4 h-4 mr-1 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                                    現調日 (日時)
-                                </label>
-                                <input type="datetime-local" name="surveyDate" class="block w-full border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border py-2 px-3 h-12">
+                                <label class="block text-sm font-medium text-slate-700 flex items-center mb-1">現調日 (日時)</label>
+                                <input type="datetime-local" id="surveyDate" class="block w-full border-slate-300 rounded-md shadow-sm border py-2 px-3 h-12">
                             </div>
-
-                            <!-- 施工日 -->
                             <div>
                                 <div class="flex justify-between items-end mb-1">
-                                    <label class="block text-sm font-medium text-slate-700 flex items-center">
-                                        <svg class="w-4 h-4 mr-1 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                        施工日
-                                    </label>
-                                    <!-- チェックボックスを右端に配置 -->
+                                    <label class="block text-sm font-medium text-slate-700">施工日</label>
                                     <div class="flex items-center pb-0.5">
-                                        <input type="checkbox" id="isConstructionUndecided" name="isConstructionUndecided" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded" onchange="toggleConstructionDate()">
+                                        <input type="checkbox" id="isConstructionUndecided" class="h-4 w-4 text-indigo-600 rounded" onchange="toggleConstructionDate()">
                                         <label for="isConstructionUndecided" class="ml-2 block text-xs text-slate-500 cursor-pointer whitespace-nowrap">未定の場合はチェック</label>
                                     </div>
                                 </div>
-                                <input type="date" name="constructionDate" id="constructionDateInput" class="block w-full border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border py-2 px-3 h-12">
+                                <input type="date" id="constructionDate" class="block w-full border-slate-300 rounded-md shadow-sm border py-2 px-3 h-12">
                             </div>
                         </div>
 
-                        <!-- 担当施工店 -->
                         <div class="mt-4">
                             <label class="block text-sm font-medium text-slate-700 mb-1">担当施工店</label>
-                            <select name="constructionShop" class="block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm h-12">
+                            <select id="constructionShop" class="block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm h-12">
                                 <option value="">選択してください</option>
                                 <option value="APC">APC</option>
                                 <option value="テクノホーム">テクノホーム</option>
@@ -306,30 +221,20 @@
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">備考・特記事項</label>
                             <div class="mt-1">
-                                <textarea name="notes" rows="4" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-slate-300 rounded-md p-3" placeholder="その他共有事項があればご記入ください"></textarea>
+                                <textarea id="notes" rows="4" class="shadow-sm block w-full sm:text-sm border border-slate-300 rounded-md p-3"></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <!-- エラーメッセージ表示エリア -->
                     <div id="error-message" class="hidden p-4 bg-red-50">
                         <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-red-800">エラーが発生しました</h3>
-                                <div id="error-text" class="mt-2 text-sm text-red-700"></div>
-                            </div>
+                            <div class="flex-shrink-0"><svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></div>
+                            <div class="ml-3"><h3 class="text-sm font-medium text-red-800">エラーが発生しました</h3><div id="error-text" class="mt-2 text-sm text-red-700"></div></div>
                         </div>
                     </div>
 
-                    <!-- フッター -->
                     <div class="px-6 py-8 bg-slate-50 sm:px-10 flex justify-end rounded-b-2xl">
                         <button type="submit" id="submit-btn" class="w-full sm:w-auto inline-flex justify-center items-center py-4 px-8 border border-transparent shadow-lg text-lg font-bold rounded-full text-white bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:-translate-y-0.5">
-                            <span id="btn-icon" class="mr-2">
-                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                            </span>
                             <span id="btn-text">契約を確定・報告する</span>
                             <div id="btn-loading" class="hidden spinner ml-2"></div>
                         </button>
@@ -338,158 +243,120 @@
                 </form>
             </div>
             
-            <div class="mt-8 text-center">
-                <p class="text-xs text-slate-400 font-medium">
-                    営業管理システム © 2025 Solar Sales Co.
-                </p>
-            </div>
+            <div class="mt-8 text-center"><p class="text-xs text-slate-400 font-medium">営業管理システム © 2025 Solar Sales Co.</p></div>
         </div>
     </div>
 
-    <!-- JavaScript ロジック -->
     <script>
         // ▼▼▼ ここにGASのウェブアプリURLを貼り付けてください ▼▼▼
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzIbrY99Xx0p09xsl91MXi1OshxgcKAY1kza8dUr3uJzzJuk7udlJQXC-xbNJ6VHVh30g/exec";
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-        // 初期化処理
+        // 初期化
         window.onload = function() {
             const today = new Date().toISOString().split('T')[0];
-            document.querySelector('input[name="contractDate"]').value = today;
+            document.getElementById('contractDate').value = today;
         };
 
-        // 商材詳細の表示切り替え
         function toggleDetails() {
-            const products = document.querySelectorAll('input[name="products"]');
-            products.forEach(checkbox => {
-                const detailId = 'detail-' + checkbox.value;
-                const detailEl = document.getElementById(detailId);
-                if (detailEl) {
-                    if (checkbox.checked) {
-                        detailEl.classList.remove('hidden');
-                    } else {
-                        detailEl.classList.add('hidden');
-                    }
-                }
+            document.querySelectorAll('input[name="products"]').forEach(cb => {
+                const detailEl = document.getElementById('detail-' + cb.value);
+                if (detailEl) cb.checked ? detailEl.classList.remove('hidden') : detailEl.classList.add('hidden');
             });
         }
 
-        // 施工日未定チェックボックスの制御
         function toggleConstructionDate() {
             const checkbox = document.getElementById('isConstructionUndecided');
-            const dateInput = document.getElementById('constructionDateInput');
-            
-            if (checkbox.checked) {
-                dateInput.disabled = true;
-                dateInput.classList.add('bg-slate-100', 'cursor-not-allowed');
-                dateInput.value = '';
-            } else {
-                dateInput.disabled = false;
-                dateInput.classList.remove('bg-slate-100', 'cursor-not-allowed');
-            }
+            const input = document.getElementById('constructionDate');
+            input.disabled = checkbox.checked;
+            checkbox.checked ? input.classList.add('bg-slate-100', 'cursor-not-allowed') : input.classList.remove('bg-slate-100', 'cursor-not-allowed');
+            if(checkbox.checked) input.value = '';
         }
 
-        // フォーム送信処理
         async function handleSubmit(event) {
             event.preventDefault();
-            console.log("🚀 送信処理開始");
-
-            const form = event.target;
+            
             const submitBtn = document.getElementById('submit-btn');
-            const btnIcon = document.getElementById('btn-icon');
-            const btnText = document.getElementById('btn-text');
             const btnLoading = document.getElementById('btn-loading');
             const errorMessageDiv = document.getElementById('error-message');
             const errorText = document.getElementById('error-text');
 
-            // URLチェック
             if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("ここにGAS")) {
-                console.error("❌ エラー: GAS_WEB_APP_URL が設定されていません。");
-                alert("GASのURLが設定されていません。コード内の GAS_WEB_APP_URL を書き換えてください。");
+                alert("GASのURLを設定してください。");
                 return;
             }
 
-            // ローディング表示
             submitBtn.disabled = true;
             submitBtn.classList.add('bg-slate-400', 'cursor-not-allowed');
-            btnIcon.classList.add('hidden');
-            btnText.textContent = '送信中...';
             btnLoading.classList.remove('hidden');
             errorMessageDiv.classList.add('hidden');
 
             try {
-                // データの収集
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
-
-                // チェックボックス（複数選択）の処理
+                // ▼▼▼ ここでデータをIDから直接取得して構築 ▼▼▼
+                // チェックボックスの収集
                 const selectedProducts = [];
-                document.querySelectorAll('input[name="products"]:checked').forEach(cb => {
-                    selectedProducts.push(cb.value);
-                });
-                data.selectedProducts = selectedProducts;
+                document.querySelectorAll('input[name="products"]:checked').forEach(cb => selectedProducts.push(cb.value));
 
-                // チェックボックス（単一）の処理
-                data.isConstructionUndecided = document.getElementById('isConstructionUndecided').checked;
+                const data = {
+                    contractType: document.getElementById('contractType').value,
+                    contractDate: document.getElementById('contractDate').value,
+                    contractorName: document.getElementById('contractorName').value,
+                    furigana: document.getElementById('furigana').value,
+                    postalCode: document.getElementById('postalCode').value,
+                    address: document.getElementById('address').value,
+                    phone: document.getElementById('phone').value,
+                    email: document.getElementById('email').value,
+                    contractAmount: document.getElementById('contractAmount').value,
+                    
+                    selectedProducts: selectedProducts,
+                    
+                    solarManufacturer: document.getElementById('solarManufacturer').value,
+                    solarCapacity: document.getElementById('solarCapacity').value,
+                    batteryManufacturer: document.getElementById('batteryManufacturer').value,
+                    batteryCapacity: document.getElementById('batteryCapacity').value,
+                    ecoCuteManufacturer: document.getElementById('ecoCuteManufacturer').value,
+                    ecoCuteCapacity: document.getElementById('ecoCuteCapacity').value,
+                    v2hManufacturer: document.getElementById('v2hManufacturer').value,
+                    ihManufacturer: document.getElementById('ihManufacturer').value,
+                    
+                    apStaffName: document.getElementById('apStaffName').value,
+                    clStaffName: document.getElementById('clStaffName').value,
+                    
+                    surveyDate: document.getElementById('surveyDate').value,
+                    constructionDate: document.getElementById('constructionDate').value,
+                    isConstructionUndecided: document.getElementById('isConstructionUndecided').checked,
+                    
+                    constructionShop: document.getElementById('constructionShop').value,
+                    notes: document.getElementById('notes').value
+                };
 
-                console.log("📦 送信データ:", data);
+                console.log("送信データ:", data);
 
-                // 送信
-                console.log("📡 GASへデータを送信中...");
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: "POST",
                     body: JSON.stringify(data),
-                    headers: {
-                        "Content-Type": "text/plain;charset=utf-8"
-                    }
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
 
-                console.log("📥 レスポンス受信 Status:", response.status);
+                const result = await response.json();
+                console.log("レスポンス:", result);
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                if (result.status === 'error') {
+                    throw new Error(result.message);
                 }
 
-                // レスポンス内容の確認
-                const result = await response.json();
-                console.log("✅ 送信成功 レスポンス:", result);
-
-                // 成功時の処理
                 document.getElementById('contract-form').classList.add('hidden');
                 document.getElementById('success-view').classList.remove('hidden');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
 
             } catch (error) {
-                console.error('❌ 送信エラー:', error);
-                errorText.textContent = '送信に失敗しました。時間をおいて再度お試しください。';
+                console.error(error);
+                errorText.textContent = '送信エラー: ' + error.message;
                 errorMessageDiv.classList.remove('hidden');
-            } finally {
-                // ボタンの状態を戻す
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('bg-slate-400', 'cursor-not-allowed');
-                btnIcon.classList.remove('hidden');
-                btnText.textContent = '契約を確定・報告する';
                 btnLoading.classList.add('hidden');
-                console.log("🏁 送信処理終了");
             }
-        }
-
-        // リセット処理
-        function resetForm() {
-            const form = document.getElementById('contract-form');
-            form.reset();
-            
-            // 表示状態のリセット
-            toggleDetails(); 
-            toggleConstructionDate();
-            
-            // 日付の再設定
-            const today = new Date().toISOString().split('T')[0];
-            document.querySelector('input[name="contractDate"]').value = today;
-
-            // 画面切り替え
-            document.getElementById('success-view').classList.add('hidden');
-            form.classList.remove('hidden');
         }
     </script>
 </body>
