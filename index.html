@@ -122,11 +122,6 @@
                         </h3>
 
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <!-- 契約金額 -->
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">契約金額 (税抜) <span class="text-red-500">*</span></label>
-                                <input type="number" id="contractAmount" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border h-12" placeholder="2000000">
-                            </div>
                             <!-- 支払い方法 -->
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">支払い方法 <span class="text-red-500">*</span></label>
@@ -137,17 +132,20 @@
                                     <option value="信販">信販</option>
                                 </select>
                             </div>
+                            <!-- 契約金額 -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">契約金額 (税抜) <span class="text-red-500">*</span></label>
+                                <input type="number" id="contractAmount" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border h-12" placeholder="2000000">
+                            </div>
                         </div>
 
                         <!-- 支払い方法の詳細エリア (動的表示) -->
                         <div id="paymentDetailsArea" class="bg-blue-50 p-4 rounded-md border border-blue-200 hidden">
-                            
                             <!-- 一括(1回) -->
                             <div id="payment-single" class="hidden">
                                 <label class="block text-sm font-medium text-blue-900 mb-1">入金予定日 <span class="text-red-500">*</span></label>
                                 <input type="date" id="paymentDateSingle" class="block w-full border-blue-300 rounded-md shadow-sm h-12 px-3">
                             </div>
-
                             <!-- 一括(2回) -->
                             <div id="payment-double" class="hidden space-y-4">
                                 <div>
@@ -159,7 +157,6 @@
                                     <input type="date" id="paymentDateDouble2" class="block w-full border-blue-300 rounded-md shadow-sm h-12 px-3">
                                 </div>
                             </div>
-
                             <!-- 信販 -->
                             <div id="payment-credit" class="hidden">
                                 <label class="block text-sm font-medium text-blue-900 mb-1">信販会社 <span class="text-red-500">*</span></label>
@@ -214,6 +211,34 @@
                                 <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="ihManufacturer" class="w-full border p-2 rounded" placeholder="例：パナソニック"></div>
                             </div>
                         </div>
+
+                        <!-- ★追加: 補助金情報 -->
+                        <div class="mt-4 border-t border-slate-200 pt-4">
+                            <span class="block text-sm font-medium text-slate-700 mb-2">補助金情報（複数選択可）</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <label class="flex items-center p-2 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50">
+                                    <input type="checkbox" name="subsidies" value="東京都太陽光補助金" class="h-4 w-4 text-orange-600 rounded">
+                                    <span class="ml-3 text-sm">東京都太陽光補助金</span>
+                                </label>
+                                <label class="flex items-center p-2 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50">
+                                    <input type="checkbox" name="subsidies" value="東京都蓄電池補助金" class="h-4 w-4 text-orange-600 rounded">
+                                    <span class="ml-3 text-sm">東京都蓄電池補助金</span>
+                                </label>
+                                <label class="flex items-center p-2 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50">
+                                    <input type="checkbox" name="subsidies" value="東京都エコキュート補助金" class="h-4 w-4 text-orange-600 rounded">
+                                    <span class="ml-3 text-sm">東京都エコキュート補助金</span>
+                                </label>
+                                <label class="flex items-center p-2 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50">
+                                    <input type="checkbox" name="subsidies" value="給湯省エネ補助金" class="h-4 w-4 text-orange-600 rounded">
+                                    <span class="ml-3 text-sm">給湯省エネ補助金</span>
+                                </label>
+                                <label class="flex items-center p-2 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50">
+                                    <input type="checkbox" name="subsidies" value="市区町村補助金" class="h-4 w-4 text-orange-600 rounded">
+                                    <span class="ml-3 text-sm">市区町村補助金(※詳細は備考に記載)</span>
+                                </label>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="p-6 sm:p-8 space-y-6">
@@ -364,9 +389,13 @@
             errorMessageDiv.classList.add('hidden');
 
             try {
-                // チェックボックスの収集
+                // チェックボックスの収集（商材）
                 const selectedProducts = [];
                 document.querySelectorAll('input[name="products"]:checked').forEach(cb => selectedProducts.push(cb.value));
+
+                // チェックボックスの収集（補助金）
+                const selectedSubsidies = [];
+                document.querySelectorAll('input[name="subsidies"]:checked').forEach(cb => selectedSubsidies.push(cb.value));
 
                 // 支払い方法の詳細値を取得
                 const paymentMethod = document.getElementById('paymentMethod').value;
@@ -400,6 +429,9 @@
                     contractAmount: document.getElementById('contractAmount').value,
                     
                     selectedProducts: selectedProducts,
+                    
+                    // 追加: 補助金
+                    subsidies: selectedSubsidies,
                     
                     solarManufacturer: document.getElementById('solarManufacturer').value,
                     solarCapacity: document.getElementById('solarCapacity').value,
@@ -448,4 +480,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
