@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>契約者登録フォーム</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <script>
         (function() {
             const originalWarn = console.warn;
@@ -14,17 +16,27 @@
             };
         })();
     </script>
+    
     <style>
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #fff; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         input[type="date"], input[type="datetime-local"] { appearance: none; min-height: 3rem; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans">
+
     <div class="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl mx-auto">
+            
             <div class="text-center mb-8">
                 <div class="flex justify-center mb-4">
                     <div class="bg-gradient-to-br from-yellow-400 to-orange-500 p-4 rounded-full shadow-lg">
@@ -33,7 +45,9 @@
                 </div>
                 <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">契約者登録フォーム</h2>
             </div>
+
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-200">
+                
                 <div id="success-view" class="hidden p-10 text-center fade-in">
                     <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -42,12 +56,15 @@
                     <p class="text-slate-600 mb-8 max-w-md mx-auto">Kintoneへの登録とLINE通知が完了しました。</p>
                     <button onclick="location.reload()" class="w-full sm:w-auto inline-flex justify-center py-3 px-8 border border-transparent shadow-sm text-sm font-bold rounded-full text-white bg-blue-600 hover:bg-blue-700 transition-colors">続けて入力する</button>
                 </div>
+
                 <form id="contract-form" class="divide-y divide-slate-100" onsubmit="handleSubmit(event)">
+                    
                     <div class="p-6 sm:p-8 space-y-6">
                         <h3 class="text-lg font-bold text-slate-900 flex items-center">
                             <svg class="w-5 h-5 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                             お客様情報
                         </h3>
+
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">契約種別 <span class="text-red-500">*</span></label>
@@ -64,14 +81,18 @@
                                 <input type="date" id="contractDate" required class="block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm h-12">
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">契約者名 <span class="text-red-500">*</span></label>
-                            <input type="text" id="contractorName" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="山田 太郎">
+
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">契約者名（お客様名） <span class="text-red-500">*</span></label>
+                                <input type="text" id="contractorName" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="例：山田 太郎">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">フリガナ <span class="text-red-500">*</span></label>
+                                <input type="text" id="furigana" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="例：ヤマダ タロウ">
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">フリガナ <span class="text-red-500">*</span></label>
-                            <input type="text" id="furigana" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="ヤマダ タロウ">
-                        </div>
+
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                             <div class="sm:col-span-1">
                                 <label class="block text-sm font-medium text-slate-700 mb-1">郵便番号</label>
@@ -79,9 +100,10 @@
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block text-sm font-medium text-slate-700 mb-1">設置場所住所 <span class="text-red-500">*</span></label>
-                                <input type="text" id="address" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="東京都...">
+                                <input type="text" id="address" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="例：東京都千代田区...">
                             </div>
                         </div>
+
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">電話番号 <span class="text-red-500">*</span></label>
@@ -93,11 +115,13 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="p-6 sm:p-8 space-y-6 bg-slate-50">
                         <h3 class="text-lg font-bold text-slate-900 flex items-center">
                             <svg class="w-5 h-5 mr-2 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                             契約・商材情報
                         </h3>
+
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">支払い方法 <span class="text-red-500">*</span></label>
@@ -113,19 +137,22 @@
                                 <input type="number" id="contractAmount" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border h-12" placeholder="2000000">
                             </div>
                         </div>
+
                         <div id="paymentDetailsArea" class="bg-blue-50 p-4 rounded-md border border-blue-200 hidden">
                             <div id="payment-single" class="hidden">
                                 <label class="block text-sm font-medium text-blue-900 mb-1">入金予定日 <span class="text-red-500">*</span></label>
                                 <input type="date" id="paymentDateSingle" class="block w-full border-blue-300 rounded-md shadow-sm h-12 px-3">
                             </div>
                             <div id="payment-double" class="hidden space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-blue-900 mb-1">入金予定日(1回目) <span class="text-red-500">*</span></label>
-                                    <input type="date" id="paymentDateDouble1" class="block w-full border-blue-300 rounded-md shadow-sm h-12 px-3">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-blue-900 mb-1">入金予定日(2回目) <span class="text-red-500">*</span></label>
-                                    <input type="date" id="paymentDateDouble2" class="block w-full border-blue-300 rounded-md shadow-sm h-12 px-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-blue-900 mb-1">入金予定日(1回目) <span class="text-red-500">*</span></label>
+                                        <input type="date" id="paymentDateDouble1" class="block w-full border-blue-300 rounded-md shadow-sm h-12 px-3">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-blue-900 mb-1">入金予定日(2回目) <span class="text-red-500">*</span></label>
+                                        <input type="date" id="paymentDateDouble2" class="block w-full border-blue-300 rounded-md shadow-sm h-12 px-3">
+                                    </div>
                                 </div>
                             </div>
                             <div id="payment-credit" class="hidden">
@@ -137,109 +164,290 @@
                                 </select>
                             </div>
                         </div>
+
                         <div>
-                            <span class="block text-sm font-medium text-slate-700 mb-2">商材情報 <span class="text-red-500">*</span></span>
+                            <span class="block text-sm font-medium text-slate-700 mb-2">商材情報（複数選択可） <span class="text-red-500">*</span></span>
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer"><input type="checkbox" name="products" value="solar" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">ソーラーパネル</span></label>
-                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer"><input type="checkbox" name="products" value="battery" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">蓄電池</span></label>
-                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer"><input type="checkbox" name="products" value="ecocute" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">エコキュート</span></label>
-                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer"><input type="checkbox" name="products" value="v2h" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">V2H</span></label>
-                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer"><input type="checkbox" name="products" value="ih" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">IH</span></label>
+                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="products" value="solar" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">ソーラーパネル</span></label>
+                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="products" value="battery" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">蓄電池</span></label>
+                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="products" value="ecocute" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">エコキュート</span></label>
+                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="products" value="v2h" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">V2H</span></label>
+                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="products" value="ih" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">IH</span></label>
                             </div>
                         </div>
+
                         <div id="product-details-container" class="space-y-4 border-t border-slate-200 pt-4 mt-4">
-                            <div id="detail-solar" class="hidden bg-white p-4 rounded-md border border-yellow-200 shadow-sm">
+                            <div id="detail-solar" class="hidden bg-white p-4 rounded-md border border-yellow-200 shadow-sm fade-in">
                                 <h4 class="font-bold text-yellow-700 mb-3">☀️ ソーラーパネル詳細</h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="solarManufacturer" class="w-full border p-2 rounded" placeholder="Qセルズ"></div>
-                                    <div><label class="text-xs text-slate-500">システム容量 (kW)</label><input type="number" step="0.001" id="solarCapacity" class="w-full border p-2 rounded" placeholder="5.555"></div>
+                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="solarManufacturer" class="w-full border p-2 rounded" placeholder="例：Qセルズ"></div>
+                                    <div><label class="text-xs text-slate-500">システム容量 (kW)</label><input type="number" step="0.01" id="solarCapacity" class="w-full border p-2 rounded" placeholder="例：5.5"></div>
                                 </div>
                             </div>
-                            <div id="detail-battery" class="hidden bg-white p-4 rounded-md border border-green-200 shadow-sm">
+                            <div id="detail-battery" class="hidden bg-white p-4 rounded-md border border-green-200 shadow-sm fade-in">
                                 <h4 class="font-bold text-green-700 mb-3">🔋 蓄電池詳細</h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="batteryManufacturer" class="w-full border p-2 rounded" placeholder="ニチコン"></div>
-                                    <div><label class="text-xs text-slate-500">蓄電容量 (kWh)</label><input type="number" step="0.01" id="batteryCapacity" class="w-full border p-2 rounded" placeholder="9.8"></div>
+                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="batteryManufacturer" class="w-full border p-2 rounded" placeholder="例：ニチコン"></div>
+                                    <div><label class="text-xs text-slate-500">蓄電容量 (kWh)</label><input type="number" step="0.01" id="batteryCapacity" class="w-full border p-2 rounded" placeholder="例：9.8"></div>
                                 </div>
                             </div>
+                            <div id="detail-ecocute" class="hidden bg-white p-4 rounded-md border border-blue-200 shadow-sm fade-in">
+                                <h4 class="font-bold text-blue-700 mb-3">💧 エコキュート詳細</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="ecoCuteManufacturer" class="w-full border p-2 rounded" placeholder="例：ダイキン"></div>
+                                    <div><label class="text-xs text-slate-500">タンク容量 (L)</label><input type="number" id="ecoCuteCapacity" class="w-full border p-2 rounded" placeholder="例：370"></div>
+                                </div>
+                            </div>
+                            <div id="detail-v2h" class="hidden bg-white p-4 rounded-md border border-indigo-200 shadow-sm fade-in">
+                                <h4 class="font-bold text-indigo-700 mb-3">🚗 V2H詳細</h4>
+                                <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="v2hManufacturer" class="w-full border p-2 rounded" placeholder="例：ニチコン"></div>
+                            </div>
+                            <div id="detail-ih" class="hidden bg-white p-4 rounded-md border border-red-200 shadow-sm fade-in">
+                                <h4 class="font-bold text-red-700 mb-3">🍳 IH詳細</h4>
+                                <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="ihManufacturer" class="w-full border p-2 rounded" placeholder="例：パナソニック"></div>
+                            </div>
                         </div>
+
                         <div class="mt-4 border-t border-slate-200 pt-4">
-                            <span class="block text-sm font-medium text-slate-700 mb-2">補助金情報</span>
+                            <span class="block text-sm font-medium text-slate-700 mb-2">補助金情報（複数選択可）</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <label class="flex items-center p-2 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50"><input type="checkbox" name="subsidies" value="東京都太陽光補助金" class="h-4 w-4 text-orange-600 rounded"><span class="ml-3 text-sm">東京都太陽光補助金</span></label>
-                                <label class="flex items-center p-2 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50"><input type="checkbox" name="subsidies" value="東京都蓄電池補助金" class="h-4 w-4 text-orange-600 rounded"><span class="ml-3 text-sm">東京都蓄電池補助金</span></label>
-                                <label class="flex items-center p-2 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50"><input type="checkbox" name="subsidies" value="給湯省エネ補助金" class="h-4 w-4 text-orange-600 rounded"><span class="ml-3 text-sm">給湯省エネ補助金</span></label>
+                                <label class="flex items-center p-2 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="subsidies" value="東京都太陽光補助金" class="h-4 w-4 text-orange-600 rounded"><span class="ml-3 text-sm">東京都太陽光補助金</span></label>
+                                <label class="flex items-center p-2 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="subsidies" value="東京都蓄電池補助金" class="h-4 w-4 text-orange-600 rounded"><span class="ml-3 text-sm">東京都蓄電池補助金</span></label>
+                                <label class="flex items-center p-2 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="subsidies" value="東京都エコキュート補助金" class="h-4 w-4 text-orange-600 rounded"><span class="ml-3 text-sm">東京都エコキュート補助金</span></label>
+                                <label class="flex items-center p-2 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="subsidies" value="給湯省エネ補助金" class="h-4 w-4 text-orange-600 rounded"><span class="ml-3 text-sm">給湯省エネ補助金</span></label>
+                                <label class="flex items-center p-2 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="subsidies" value="市区町村補助金" class="h-4 w-4 text-orange-600 rounded"><span class="ml-3 text-sm">市区町村補助金(※詳細は備考に記載)</span></label>
                             </div>
                         </div>
                     </div>
+
                     <div class="p-6 sm:p-8 space-y-6">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-indigo-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                            担当・施工情報
+                        </h3>
+
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <div><label class="block text-sm font-medium text-slate-700 mb-1">AP担当者名 <span class="text-red-500">*</span></label><input type="text" id="apStaffName" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border"></div>
-                            <div><label class="block text-sm font-medium text-slate-700 mb-1">CL担当者名 <span class="text-red-500">*</span></label><input type="text" id="clStaffName" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border"></div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">AP担当者名 <span class="text-red-500">*</span></label>
+                                <input type="text" id="apStaffName" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="アポインター名">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">CL担当者名 <span class="text-red-500">*</span></label>
+                                <input type="text" id="clStaffName" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="クローザー名">
+                            </div>
                         </div>
-                        <div><label class="block text-sm font-medium text-slate-700 mb-1">備考</label><textarea id="notes" rows="3" class="shadow-sm block w-full border border-slate-300 rounded-md p-3"></textarea></div>
+
+                        <div class="border-t border-slate-200 my-4"></div>
+
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 flex items-center mb-1">現調日 (日時)</label>
+                                <input type="datetime-local" id="surveyDate" class="block w-full border-slate-300 rounded-md shadow-sm border py-2 px-3 h-12">
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-end mb-1">
+                                    <label class="block text-sm font-medium text-slate-700">施工日</label>
+                                    <div class="flex items-center pb-0.5">
+                                        <input type="checkbox" id="isConstructionUndecided" class="h-4 w-4 text-indigo-600 rounded" onchange="toggleConstructionDate()">
+                                        <label for="isConstructionUndecided" class="ml-2 block text-xs text-slate-500 cursor-pointer whitespace-nowrap">未定の場合はチェック</label>
+                                    </div>
+                                </div>
+                                <input type="date" id="constructionDate" class="block w-full border-slate-300 rounded-md shadow-sm border py-2 px-3 h-12">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">担当施工店</label>
+                            <select id="constructionShop" class="block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm h-12">
+                                <option value="">選択してください</option>
+                                <option value="APC">APC</option>
+                                <option value="テクノホーム">テクノホーム</option>
+                                <option value="TERRA">TERRA</option>
+                                <option value="その他">その他(※備考欄に記述)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">備考・特記事項</label>
+                            <div class="mt-1">
+                                <textarea id="notes" rows="4" class="shadow-sm block w-full sm:text-sm border border-slate-300 rounded-md p-3" placeholder="その他連絡事項があれば入力してください"></textarea>
+                            </div>
+                        </div>
                     </div>
-                    <div class="px-6 py-8 bg-slate-50 flex justify-end">
-                        <button type="submit" id="submit-btn" class="w-full sm:w-auto py-4 px-8 font-bold rounded-full text-white bg-blue-600 hover:bg-blue-700">
-                            <span id="btn-text">確定・報告する</span>
+
+                    <div id="error-message" class="hidden p-4 bg-red-50">
+                        <div class="flex">
+                            <div class="flex-shrink-0"><svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></div>
+                            <div class="ml-3"><h3 class="text-sm font-medium text-red-800">エラーが発生しました</h3><div id="error-text" class="mt-2 text-sm text-red-700"></div></div>
+                        </div>
+                    </div>
+
+                    <div class="px-6 py-8 bg-slate-50 sm:px-10 flex justify-end rounded-b-2xl">
+                        <button type="submit" id="submit-btn" class="w-full sm:w-auto inline-flex justify-center items-center py-4 px-12 border border-transparent shadow-lg text-lg font-bold rounded-full text-white bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:scale-105 active:scale-95">
+                            <span id="btn-text">契約を確定・報告する</span>
                             <div id="btn-loading" class="hidden spinner ml-2"></div>
                         </button>
                     </div>
+
                 </form>
             </div>
+            
+            <div class="mt-8 text-center"><p class="text-xs text-slate-400 font-medium">営業管理システム © 2026 Solar Sales Co.</p></div>
         </div>
     </div>
+
     <script>
+        // ▼▼▼ ここにGASのウェブアプリURLを貼り付けてください ▼▼▼
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzIbrY99Xx0p09xsl91MXi1OshxgcKAY1kza8dUr3uJzzJuk7udlJQXC-xbNJ6VHVh30g/exec";
-        window.onload = () => document.getElementById('contractDate').value = new Date().toISOString().split('T')[0];
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('contractDate').value = today;
+        };
+
         function toggleDetails() {
             document.querySelectorAll('input[name="products"]').forEach(cb => {
-                const el = document.getElementById('detail-' + cb.value);
-                if (el) cb.checked ? el.classList.remove('hidden') : el.classList.add('hidden');
+                const detailEl = document.getElementById('detail-' + cb.value);
+                if (detailEl) cb.checked ? detailEl.classList.remove('hidden') : detailEl.classList.add('hidden');
             });
         }
-        function togglePaymentDetails() {
-            const m = document.getElementById('paymentMethod').value;
-            const area = document.getElementById('paymentDetailsArea');
-            area.classList.toggle('hidden', !m);
-            document.getElementById('payment-single').classList.toggle('hidden', m !== '一括(1回)');
-            document.getElementById('payment-double').classList.toggle('hidden', m !== '一括(2回)');
-            document.getElementById('payment-credit').classList.toggle('hidden', m !== '信販');
+
+        function toggleConstructionDate() {
+            const checkbox = document.getElementById('isConstructionUndecided');
+            const input = document.getElementById('constructionDate');
+            input.disabled = checkbox.checked;
+            if(checkbox.checked) {
+                input.classList.add('bg-slate-100', 'cursor-not-allowed');
+                input.value = '';
+            } else {
+                input.classList.remove('bg-slate-100', 'cursor-not-allowed');
+            }
         }
-        async function handleSubmit(e) {
-            e.preventDefault();
-            const btn = document.getElementById('submit-btn');
-            btn.disabled = true;
+
+        function togglePaymentDetails() {
+            const method = document.getElementById('paymentMethod').value;
+            const container = document.getElementById('paymentDetailsArea');
+            const single = document.getElementById('payment-single');
+            const double = document.getElementById('payment-double');
+            const credit = document.getElementById('payment-credit');
+
+            container.classList.add('hidden');
+            single.classList.add('hidden');
+            double.classList.add('hidden');
+            credit.classList.add('hidden');
+
+            if (method === '一括(1回)') {
+                container.classList.remove('hidden');
+                single.classList.remove('hidden');
+            } else if (method === '一括(2回)') {
+                container.classList.remove('hidden');
+                double.classList.remove('hidden');
+            } else if (method === '信販') {
+                container.classList.remove('hidden');
+                credit.classList.remove('hidden');
+            }
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-btn');
+            const btnLoading = document.getElementById('btn-loading');
+            const btnText = document.getElementById('btn-text');
+            const errorMessageDiv = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+
+            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("ここにGAS")) {
+                alert("GASのURLを設定してください。");
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+            btnText.textContent = "送信中...";
+            btnLoading.classList.remove('hidden');
+            errorMessageDiv.classList.add('hidden');
+
             try {
-                const products = Array.from(document.querySelectorAll('input[name="products"]:checked')).map(c => c.value);
-                const subsidies = Array.from(document.querySelectorAll('input[name="subsidies"]:checked')).map(c => c.value);
+                const selectedProducts = [];
+                document.querySelectorAll('input[name="products"]:checked').forEach(cb => selectedProducts.push(cb.value));
+
+                const selectedSubsidies = [];
+                document.querySelectorAll('input[name="subsidies"]:checked').forEach(cb => selectedSubsidies.push(cb.value));
+
+                const paymentMethod = document.getElementById('paymentMethod').value;
+                let paymentDate1 = '';
+                let paymentDate2 = '';
+                let creditCompany = '';
+
+                if (paymentMethod === '一括(1回)') {
+                    paymentDate1 = document.getElementById('paymentDateSingle').value;
+                } else if (paymentMethod === '一括(2回)') {
+                    paymentDate1 = document.getElementById('paymentDateDouble1').value;
+                    paymentDate2 = document.getElementById('paymentDateDouble2').value;
+                } else if (paymentMethod === '信販') {
+                    creditCompany = document.getElementById('creditCompany').value;
+                }
+
                 const data = {
                     contractType: document.getElementById('contractType').value,
                     contractDate: document.getElementById('contractDate').value,
                     contractorName: document.getElementById('contractorName').value,
                     furigana: document.getElementById('furigana').value,
+                    postalCode: document.getElementById('postalCode').value,
                     address: document.getElementById('address').value,
                     phone: document.getElementById('phone').value,
                     email: document.getElementById('email').value,
-                    paymentMethod: document.getElementById('paymentMethod').value,
-                    paymentDate1: document.getElementById('paymentDateSingle').value || document.getElementById('paymentDateDouble1').value,
-                    paymentDate2: document.getElementById('paymentDateDouble2').value,
-                    creditCompany: document.getElementById('creditCompany').value,
+                    paymentMethod: paymentMethod,
+                    paymentDate1: paymentDate1,
+                    paymentDate2: paymentDate2,
+                    creditCompany: creditCompany,
                     contractAmount: document.getElementById('contractAmount').value,
-                    selectedProducts: products,
-                    subsidies: subsidies,
+                    selectedProducts: selectedProducts,
+                    subsidies: selectedSubsidies,
                     solarManufacturer: document.getElementById('solarManufacturer').value,
                     solarCapacity: document.getElementById('solarCapacity').value,
                     batteryManufacturer: document.getElementById('batteryManufacturer').value,
                     batteryCapacity: document.getElementById('batteryCapacity').value,
+                    ecoCuteManufacturer: document.getElementById('ecoCuteManufacturer').value,
+                    ecoCuteCapacity: document.getElementById('ecoCuteCapacity').value,
+                    v2hManufacturer: document.getElementById('v2hManufacturer').value,
+                    ihManufacturer: document.getElementById('ihManufacturer').value,
                     apStaffName: document.getElementById('apStaffName').value,
                     clStaffName: document.getElementById('clStaffName').value,
+                    surveyDate: document.getElementById('surveyDate').value,
+                    constructionDate: document.getElementById('constructionDate').value,
+                    isConstructionUndecided: document.getElementById('isConstructionUndecided').checked,
+                    constructionShop: document.getElementById('constructionShop').value,
                     notes: document.getElementById('notes').value
                 };
-                await fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify(data) });
+
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'error') {
+                    throw new Error(result.message);
+                }
+
                 document.getElementById('contract-form').classList.add('hidden');
                 document.getElementById('success-view').classList.remove('hidden');
-            } catch (err) { alert(err); btn.disabled = false; }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } catch (error) {
+                console.error(error);
+                errorText.textContent = '送信エラー: ' + error.message;
+                errorMessageDiv.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                btnText.textContent = "契約を確定・報告する";
+                btnLoading.classList.add('hidden');
+            }
         }
     </script>
 </body>
