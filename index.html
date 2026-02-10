@@ -435,6 +435,10 @@
                     throw new Error(result.message);
                 }
 
+                if (result.logs && result.logs.length > 0) {
+                    throw new Error(result.logs.join('\n'));
+                }
+
                 document.getElementById('contract-form').classList.add('hidden');
                 document.getElementById('success-view').classList.remove('hidden');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
