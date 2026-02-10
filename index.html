@@ -114,6 +114,21 @@
                                 <input type="email" id="email" class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="example@email.com">
                             </div>
                         </div>
+
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">売電先電力会社</label>
+                                <select id="powerCompanyType" class="block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm h-12" onchange="togglePowerCompanyName()">
+                                    <option value="">選択してください</option>
+                                    <option value="東京電力">東京電力</option>
+                                    <option value="新電力">新電力</option>
+                                </select>
+                            </div>
+                            <div id="powerCompanyNameArea" class="hidden">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">電力会社名</label>
+                                <input type="text" id="powerCompanyName" class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="例：ENEOSでんき">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="p-6 sm:p-8 space-y-6 bg-slate-50">
@@ -306,6 +321,17 @@
             document.getElementById('contractDate').value = today;
         };
 
+        function togglePowerCompanyName() {
+            const type = document.getElementById('powerCompanyType').value;
+            const nameArea = document.getElementById('powerCompanyNameArea');
+            if (type === '新電力') {
+                nameArea.classList.remove('hidden');
+            } else {
+                nameArea.classList.add('hidden');
+                document.getElementById('powerCompanyName').value = '';
+            }
+        }
+
         function toggleDetails() {
             document.querySelectorAll('input[name="products"]').forEach(cb => {
                 const detailEl = document.getElementById('detail-' + cb.value);
@@ -399,6 +425,8 @@
                     address: document.getElementById('address').value,
                     phone: document.getElementById('phone').value,
                     email: document.getElementById('email').value,
+                    powerCompanyType: document.getElementById('powerCompanyType').value,
+                    powerCompanyName: document.getElementById('powerCompanyName').value,
                     paymentMethod: paymentMethod,
                     paymentDate1: paymentDate1,
                     paymentDate2: paymentDate2,
