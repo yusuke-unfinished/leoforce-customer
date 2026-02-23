@@ -416,6 +416,37 @@
                     creditCompany = document.getElementById('creditCompany').value;
                 }
 
+                // --- カスタムバリデーション ---
+                const validationErrors = [];
+
+                if (selectedProducts.length === 0) {
+                    validationErrors.push('「商材情報」を1つ以上選択してください。');
+                }
+                if (paymentMethod === '一括(1回)' && !paymentDate1) {
+                    validationErrors.push('「入金予定日」を入力してください。');
+                }
+                if (paymentMethod === '一括(2回)') {
+                    if (!paymentDate1) validationErrors.push('「入金予定日(1回目)」を入力してください。');
+                    if (!paymentDate2) validationErrors.push('「入金予定日(2回目)」を入力してください。');
+                }
+                if (paymentMethod === '信販' && !creditCompany) {
+                    validationErrors.push('「信販会社」を選択してください。');
+                }
+                if (document.getElementById('powerCompanyType').value === '新電力' && !document.getElementById('powerCompanyName').value.trim()) {
+                    validationErrors.push('売電先が「新電力」の場合、「電力会社名」を入力してください。');
+                }
+
+                if (validationErrors.length > 0) {
+                    errorText.innerHTML = validationErrors.map(e => `・${e}`).join('<br>');
+                    errorMessageDiv.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    btnText.textContent = "契約を確定・報告する";
+                    btnLoading.classList.add('hidden');
+                    errorMessageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+
                 const data = {
                     contractType: document.getElementById('contractType').value,
                     contractDate: document.getElementById('contractDate').value,
