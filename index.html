@@ -59,6 +59,7 @@
 
                 <form id="contract-form" class="divide-y divide-slate-100" onsubmit="handleSubmit(event)">
                     
+                    <!-- お客様情報 -->
                     <div class="p-6 sm:p-8 space-y-6">
                         <h3 class="text-lg font-bold text-slate-900 flex items-center">
                             <svg class="w-5 h-5 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -131,6 +132,7 @@
                         </div>
                     </div>
 
+                    <!-- 契約・商材情報 -->
                     <div class="p-6 sm:p-8 space-y-6 bg-slate-50">
                         <h3 class="text-lg font-bold text-slate-900 flex items-center">
                             <svg class="w-5 h-5 mr-2 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -192,6 +194,8 @@
                         </div>
 
                         <div id="product-details-container" class="space-y-4 border-t border-slate-200 pt-4 mt-4">
+
+                            <!-- ソーラーパネル詳細 -->
                             <div id="detail-solar" class="hidden bg-white p-4 rounded-md border border-yellow-200 shadow-sm fade-in">
                                 <h4 class="font-bold text-yellow-700 mb-3">☀️ ソーラーパネル詳細</h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -199,30 +203,103 @@
                                     <div><label class="text-xs text-slate-500">システム容量 (kW)</label><input type="number" step="0.0001" id="solarCapacity" class="w-full border p-2 rounded" placeholder="例：5.5"></div>
                                 </div>
                             </div>
+
+                            <!-- 蓄電池詳細（メーカー→型番→容量の順） -->
                             <div id="detail-battery" class="hidden bg-white p-4 rounded-md border border-green-200 shadow-sm fade-in">
                                 <h4 class="font-bold text-green-700 mb-3">🔋 蓄電池詳細</h4>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="batteryManufacturer" class="w-full border p-2 rounded" placeholder="例：ニチコン"></div>
-                                    <div><label class="text-xs text-slate-500">蓄電容量 (kWh)</label><input type="number" step="0.01" id="batteryCapacity" class="w-full border p-2 rounded" placeholder="例：9.8"></div>
+                                <div class="grid grid-cols-1 gap-4">
+                                    <!-- ① メーカー選択 -->
+                                    <div>
+                                        <label class="text-xs text-slate-500">メーカー名</label>
+                                        <select id="batteryManufacturer" class="w-full border p-2 rounded h-10" onchange="updateBatteryModels()">
+                                            <option value="">選択してください</option>
+                                            <option value="DMM">DMM</option>
+                                            <option value="XSOL">XSOL</option>
+                                            <option value="SHARP">SHARP</option>
+                                            <option value="ニチコン">ニチコン</option>
+                                            <option value="住友電工">住友電工</option>
+                                            <option value="長州産業">長州産業</option>
+                                            <option value="リブタワー">リブタワー</option>
+                                            <option value="その他">その他</option>
+                                        </select>
+                                    </div>
+                                    <!-- その他メーカー入力 -->
+                                    <div id="batteryManufacturerOtherArea" class="hidden">
+                                        <label class="text-xs text-slate-500">メーカー名（その他）</label>
+                                        <input type="text" id="batteryManufacturerOther" class="w-full border p-2 rounded" placeholder="メーカー名を入力してください">
+                                    </div>
+                                    <!-- ② 型番プルダウン（メーカー選択後に表示） -->
+                                    <div id="batteryModelArea" class="hidden">
+                                        <label class="text-xs text-slate-500">型番</label>
+                                        <select id="batteryModel" class="w-full border p-2 rounded h-10">
+                                            <option value="">選択してください</option>
+                                        </select>
+                                    </div>
+                                    <!-- その他型番入力 -->
+                                    <div id="batteryModelOtherArea" class="hidden">
+                                        <label class="text-xs text-slate-500">型番（その他）</label>
+                                        <input type="text" id="batteryModelOther" class="w-full border p-2 rounded" placeholder="型番を入力してください">
+                                    </div>
+                                    <!-- ③ 蓄電容量 -->
+                                    <div>
+                                        <label class="text-xs text-slate-500">蓄電容量 (kWh)</label>
+                                        <input type="number" step="0.01" id="batteryCapacity" class="w-full border p-2 rounded" placeholder="例：9.8">
+                                    </div>
                                 </div>
                             </div>
+
+                            <!-- エコキュート詳細（メーカー→型番→容量の順） -->
                             <div id="detail-ecocute" class="hidden bg-white p-4 rounded-md border border-blue-200 shadow-sm fade-in">
                                 <h4 class="font-bold text-blue-700 mb-3">💧 エコキュート詳細</h4>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="ecoCuteManufacturer" class="w-full border p-2 rounded" placeholder="例：ダイキン"></div>
-                                    <div><label class="text-xs text-slate-500">タンク容量 (L)</label><input type="number" id="ecoCuteCapacity" class="w-full border p-2 rounded" placeholder="例：370"></div>
+                                <div class="grid grid-cols-1 gap-4">
+                                    <!-- ① メーカー選択 -->
+                                    <div>
+                                        <label class="text-xs text-slate-500">メーカー名</label>
+                                        <select id="ecoCuteManufacturer" class="w-full border p-2 rounded h-10" onchange="updateEcoCuteModels()">
+                                            <option value="">選択してください</option>
+                                            <option value="コロナ">コロナ</option>
+                                            <option value="その他">その他</option>
+                                        </select>
+                                    </div>
+                                    <!-- その他メーカー入力 -->
+                                    <div id="ecoCuteManufacturerOtherArea" class="hidden">
+                                        <label class="text-xs text-slate-500">メーカー名（その他）</label>
+                                        <input type="text" id="ecoCuteManufacturerOther" class="w-full border p-2 rounded" placeholder="メーカー名を入力してください">
+                                    </div>
+                                    <!-- ② 型番プルダウン（メーカー選択後に表示） -->
+                                    <div id="ecoCuteModelArea" class="hidden">
+                                        <label class="text-xs text-slate-500">型番</label>
+                                        <select id="ecoCuteModel" class="w-full border p-2 rounded h-10">
+                                            <option value="">選択してください</option>
+                                        </select>
+                                    </div>
+                                    <!-- その他型番入力 -->
+                                    <div id="ecoCuteModelOtherArea" class="hidden">
+                                        <label class="text-xs text-slate-500">型番（その他）</label>
+                                        <input type="text" id="ecoCuteModelOther" class="w-full border p-2 rounded" placeholder="型番を入力してください">
+                                    </div>
+                                    <!-- ③ タンク容量 -->
+                                    <div>
+                                        <label class="text-xs text-slate-500">タンク容量 (L)</label>
+                                        <input type="number" id="ecoCuteCapacity" class="w-full border p-2 rounded" placeholder="例：370">
+                                    </div>
                                 </div>
                             </div>
+
+                            <!-- V2H詳細 -->
                             <div id="detail-v2h" class="hidden bg-white p-4 rounded-md border border-indigo-200 shadow-sm fade-in">
                                 <h4 class="font-bold text-indigo-700 mb-3">🚗 V2H詳細</h4>
                                 <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="v2hManufacturer" class="w-full border p-2 rounded" placeholder="例：ニチコン"></div>
                             </div>
+
+                            <!-- IH詳細 -->
                             <div id="detail-ih" class="hidden bg-white p-4 rounded-md border border-red-200 shadow-sm fade-in">
                                 <h4 class="font-bold text-red-700 mb-3">🍳 IH詳細</h4>
                                 <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="ihManufacturer" class="w-full border p-2 rounded" placeholder="例：パナソニック"></div>
                             </div>
                         </div>
 
+                        <!-- 補助金情報 -->
                         <div class="mt-4 border-t border-slate-200 pt-4">
                             <span class="block text-sm font-medium text-slate-700 mb-2">補助金情報（複数選択可）</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -239,6 +316,7 @@
                         </div>
                     </div>
 
+                    <!-- 担当・施工情報 -->
                     <div class="p-6 sm:p-8 space-y-6">
                         <h3 class="text-lg font-bold text-slate-900 flex items-center">
                             <svg class="w-5 h-5 mr-2 text-indigo-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
@@ -316,10 +394,84 @@
     </div>
 
     <script>
-        // ▼▼▼ ここにGASのウェブアプリURLを貼り付けてください ▼▼▼
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzIbrY99Xx0p09xsl91MXi1OshxgcKAY1kza8dUr3uJzzJuk7udlJQXC-xbNJ6VHVh30g/exec";
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
+        // =========================================================
+        // ★ 蓄電池・エコキュート 型番マスター
+        // =========================================================
+        const BATTERY_MODELS = {
+            'DMM':    ['4.95-5N-DM','4.95-10N-DM','4.95-15N-DM','4.95-7N-DM','4.95-14N-DM','4.95-21N-DM'],
+            'XSOL':   ['4.95-5-N-XSOL','4.95-10-N-XSOL','4.95-15-N-XSOL','4.95-7-N-XSOL','4.95-14-N-XSOL','4.95-21-N-XSOL'],
+            'SHARP':  ['JH-WBPDD988','JH-WBPDC988','JH-WBPDD880','JH-WBPDC880','JH-WBPDB777','JH-WBPDA777'],
+            'ニチコン': ['ES-T5','ES-T6'],
+            '住友電工': ['PDH-6000S01A'],
+            '長州産業': ['CB-P63M06A','CB-P98M06A','CB-P127M06A','CB-P164M06A'],
+            'リブタワー': ['ESS-T5MGCK','ESS-T6MGCK','ESS-T5XGCK','ESS-T6XGCK'],
+        };
+
+        const ECOCUTE_MODELS = {
+            'コロナ': ['CHP-E37AZ2','CHP-E46AZ2','CHP-ES46AZ2','CHP-37AZ2','CHP-46AZ2'],
+        };
+
+        // 蓄電池：メーカー変更時に型番プルダウンを更新
+        function updateBatteryModels() {
+            const maker = document.getElementById('batteryManufacturer').value;
+            const modelArea = document.getElementById('batteryModelArea');
+            const modelSelect = document.getElementById('batteryModel');
+            const otherMakerArea = document.getElementById('batteryManufacturerOtherArea');
+            const otherModelArea = document.getElementById('batteryModelOtherArea');
+
+            // リセット
+            modelSelect.innerHTML = '<option value="">選択してください</option>';
+            modelArea.classList.add('hidden');
+            otherMakerArea.classList.add('hidden');
+            otherModelArea.classList.add('hidden');
+
+            if (maker === 'その他') {
+                otherMakerArea.classList.remove('hidden');
+                otherModelArea.classList.remove('hidden');
+            } else if (maker && BATTERY_MODELS[maker]) {
+                BATTERY_MODELS[maker].forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m;
+                    opt.textContent = m;
+                    modelSelect.appendChild(opt);
+                });
+                modelArea.classList.remove('hidden');
+            }
+        }
+
+        // エコキュート：メーカー変更時に型番プルダウンを更新
+        function updateEcoCuteModels() {
+            const maker = document.getElementById('ecoCuteManufacturer').value;
+            const modelArea = document.getElementById('ecoCuteModelArea');
+            const modelSelect = document.getElementById('ecoCuteModel');
+            const otherMakerArea = document.getElementById('ecoCuteManufacturerOtherArea');
+            const otherModelArea = document.getElementById('ecoCuteModelOtherArea');
+
+            // リセット
+            modelSelect.innerHTML = '<option value="">選択してください</option>';
+            modelArea.classList.add('hidden');
+            otherMakerArea.classList.add('hidden');
+            otherModelArea.classList.add('hidden');
+
+            if (maker === 'その他') {
+                otherMakerArea.classList.remove('hidden');
+                otherModelArea.classList.remove('hidden');
+            } else if (maker && ECOCUTE_MODELS[maker]) {
+                ECOCUTE_MODELS[maker].forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m;
+                    opt.textContent = m;
+                    modelSelect.appendChild(opt);
+                });
+                modelArea.classList.remove('hidden');
+            }
+        }
+
+        // =========================================================
+        // 既存の関数
+        // =========================================================
         window.onload = function() {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('contractDate').value = today;
@@ -328,12 +480,8 @@
         function toggleMunicipalSubsidy() {
             const checked = document.getElementById('municipalSubsidyCheck').checked;
             const area = document.getElementById('municipalSubsidyArea');
-            if (checked) {
-                area.classList.remove('hidden');
-            } else {
-                area.classList.add('hidden');
-                document.getElementById('municipalSubsidyAreaText').value = '';
-            }
+            checked ? area.classList.remove('hidden') : area.classList.add('hidden');
+            if (!checked) document.getElementById('municipalSubsidyAreaText').value = '';
         }
 
         function togglePowerCompanyName() {
@@ -358,7 +506,7 @@
             const checkbox = document.getElementById('isConstructionUndecided');
             const input = document.getElementById('constructionDate');
             input.disabled = checkbox.checked;
-            if(checkbox.checked) {
+            if (checkbox.checked) {
                 input.classList.add('bg-slate-100', 'cursor-not-allowed');
                 input.value = '';
             } else {
@@ -379,17 +527,17 @@
             credit.classList.add('hidden');
 
             if (method === '一括(1回)') {
-                container.classList.remove('hidden');
-                single.classList.remove('hidden');
+                container.classList.remove('hidden'); single.classList.remove('hidden');
             } else if (method === '一括(2回)') {
-                container.classList.remove('hidden');
-                double.classList.remove('hidden');
+                container.classList.remove('hidden'); double.classList.remove('hidden');
             } else if (method === '信販') {
-                container.classList.remove('hidden');
-                credit.classList.remove('hidden');
+                container.classList.remove('hidden'); credit.classList.remove('hidden');
             }
         }
 
+        // =========================================================
+        // フォーム送信
+        // =========================================================
         async function handleSubmit(event) {
             event.preventDefault();
             
@@ -418,10 +566,7 @@
                 document.querySelectorAll('input[name="subsidies"]:checked').forEach(cb => selectedSubsidies.push(cb.value));
 
                 const paymentMethod = document.getElementById('paymentMethod').value;
-                let paymentDate1 = '';
-                let paymentDate2 = '';
-                let creditCompany = '';
-
+                let paymentDate1 = '', paymentDate2 = '', creditCompany = '';
                 if (paymentMethod === '一括(1回)') {
                     paymentDate1 = document.getElementById('paymentDateSingle').value;
                 } else if (paymentMethod === '一括(2回)') {
@@ -431,22 +576,33 @@
                     creditCompany = document.getElementById('creditCompany').value;
                 }
 
-                // --- カスタムバリデーション ---
-                const validationErrors = [];
+                // ★ 蓄電池：メーカー・型番の取得（その他対応）
+                const batteryMakerSelected = document.getElementById('batteryManufacturer').value;
+                const batteryManufacturer = batteryMakerSelected === 'その他'
+                    ? document.getElementById('batteryManufacturerOther').value
+                    : batteryMakerSelected;
+                const batteryModel = batteryMakerSelected === 'その他'
+                    ? document.getElementById('batteryModelOther').value
+                    : document.getElementById('batteryModel').value;
 
-                if (selectedProducts.length === 0) {
-                    validationErrors.push('「商材情報」を1つ以上選択してください。');
-                }
-                if (paymentMethod === '一括(1回)' && !paymentDate1) {
-                    validationErrors.push('「入金予定日」を入力してください。');
-                }
+                // ★ エコキュート：メーカー・型番の取得（その他対応）
+                const ecoCuteMakerSelected = document.getElementById('ecoCuteManufacturer').value;
+                const ecoCuteManufacturer = ecoCuteMakerSelected === 'その他'
+                    ? document.getElementById('ecoCuteManufacturerOther').value
+                    : ecoCuteMakerSelected;
+                const ecoCuteModel = ecoCuteMakerSelected === 'その他'
+                    ? document.getElementById('ecoCuteModelOther').value
+                    : document.getElementById('ecoCuteModel').value;
+
+                // バリデーション
+                const validationErrors = [];
+                if (selectedProducts.length === 0) validationErrors.push('「商材情報」を1つ以上選択してください。');
+                if (paymentMethod === '一括(1回)' && !paymentDate1) validationErrors.push('「入金予定日」を入力してください。');
                 if (paymentMethod === '一括(2回)') {
                     if (!paymentDate1) validationErrors.push('「入金予定日(1回目)」を入力してください。');
                     if (!paymentDate2) validationErrors.push('「入金予定日(2回目)」を入力してください。');
                 }
-                if (paymentMethod === '信販' && !creditCompany) {
-                    validationErrors.push('「信販会社」を選択してください。');
-                }
+                if (paymentMethod === '信販' && !creditCompany) validationErrors.push('「信販会社」を選択してください。');
                 if (document.getElementById('powerCompanyType').value === '新電力' && !document.getElementById('powerCompanyName').value.trim()) {
                     validationErrors.push('売電先が「新電力」の場合、「電力会社名」を入力してください。');
                 }
@@ -473,18 +629,22 @@
                     email: document.getElementById('email').value,
                     powerPurchaser: document.getElementById('powerCompanyType').value,
                     powerCompanyName: document.getElementById('powerCompanyName').value,
-                    paymentMethod: paymentMethod,
-                    paymentDate1: paymentDate1,
-                    paymentDate2: paymentDate2,
-                    creditCompany: creditCompany,
+                    paymentMethod,
+                    paymentDate1,
+                    paymentDate2,
+                    creditCompany,
                     contractAmount: document.getElementById('contractAmount').value,
-                    selectedProducts: selectedProducts,
+                    selectedProducts,
                     subsidies: selectedSubsidies,
                     solarManufacturer: document.getElementById('solarManufacturer').value,
                     solarCapacity: document.getElementById('solarCapacity').value,
-                    batteryManufacturer: document.getElementById('batteryManufacturer').value,
+                    // ★ 蓄電池（型番追加）
+                    batteryManufacturer,
+                    batteryModel,
                     batteryCapacity: document.getElementById('batteryCapacity').value,
-                    ecoCuteManufacturer: document.getElementById('ecoCuteManufacturer').value,
+                    // ★ エコキュート（型番追加）
+                    ecoCuteManufacturer,
+                    ecoCuteModel,
                     ecoCuteCapacity: document.getElementById('ecoCuteCapacity').value,
                     v2hManufacturer: document.getElementById('v2hManufacturer').value,
                     ihManufacturer: document.getElementById('ihManufacturer').value,
@@ -505,14 +665,8 @@
                 });
 
                 const result = await response.json();
-
-                if (result.status === 'error') {
-                    throw new Error(result.message);
-                }
-
-                if (result.logs && result.logs.length > 0) {
-                    throw new Error(result.logs.join('\n'));
-                }
+                if (result.status === 'error') throw new Error(result.message);
+                if (result.logs && result.logs.length > 0) throw new Error(result.logs.join('\n'));
 
                 document.getElementById('contract-form').classList.add('hidden');
                 document.getElementById('success-view').classList.remove('hidden');
