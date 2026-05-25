@@ -323,7 +323,7 @@
                                 <label class="block text-sm font-medium text-slate-700">市区町村補助金（対象地域を記入）</label>
                                 <div id="municipalSubsidyList" class="space-y-2">
                                     <div class="flex items-center gap-2 municipal-entry">
-                                        <input type="text" class="municipal-input block w-full border-slate-300 rounded-md shadow-sm py-2 px-3 border" placeholder="例：東京都世田谷区">
+                                        <input type="text" class="municipal-input block w-full border-slate-300 rounded-md shadow-sm py-2 px-3 border" placeholder="例：東京都世田谷区" oninput="updateMunicipalNote()">
                                         <button type="button" onclick="removeMunicipalEntry(this)" class="hidden flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors remove-btn">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                                         </button>
@@ -632,11 +632,12 @@
                 // チェックを外したら入力欄をリセット（1つだけ残す）
                 const list = document.getElementById('municipalSubsidyList');
                 list.innerHTML = `<div class="flex items-center gap-2 municipal-entry">
-                    <input type="text" class="municipal-input block w-full border-slate-300 rounded-md shadow-sm py-2 px-3 border" placeholder="例：東京都世田谷区">
+                    <input type="text" class="municipal-input block w-full border-slate-300 rounded-md shadow-sm py-2 px-3 border" placeholder="例：東京都世田谷区" oninput="updateMunicipalNote()">
                     <button type="button" onclick="removeMunicipalEntry(this)" class="hidden flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors remove-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
                 </div>`;
+                updateMunicipalNote();
             }
         }
 
@@ -645,7 +646,7 @@
             const entry = document.createElement('div');
             entry.className = 'flex items-center gap-2 municipal-entry';
             entry.innerHTML = `
-                <input type="text" class="municipal-input block w-full border-slate-300 rounded-md shadow-sm py-2 px-3 border" placeholder="例：神奈川県川崎市">
+                <input type="text" class="municipal-input block w-full border-slate-300 rounded-md shadow-sm py-2 px-3 border" placeholder="例：神奈川県川崎市" oninput="updateMunicipalNote()">
                 <button type="button" onclick="removeMunicipalEntry(this)" class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors remove-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>`;
@@ -658,6 +659,7 @@
             const entry = btn.closest('.municipal-entry');
             entry.remove();
             updateRemoveButtons();
+            updateMunicipalNote();
         }
 
         function updateRemoveButtons() {
@@ -672,6 +674,26 @@
             return Array.from(document.querySelectorAll('.municipal-input'))
                 .map(input => input.value.trim())
                 .filter(v => v !== '');
+        }
+
+        function updateMunicipalNote() {
+            const notes = document.getElementById('notes');
+            const prefix = '市区町村補助金：';
+            // 既存の市区町村補助金行を削除し、空行も詰める
+            const lines = notes.value.split('\n')
+                .filter(line => !line.startsWith(prefix))
+                .map(line => line.trimEnd());
+            // 末尾の空行を除去
+            while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
+            // 先頭の空行を除去
+            while (lines.length > 0 && lines[0] === '') lines.shift();
+            // 現在の入力値を取得して追記
+            const areas = getMunicipalSubsidyTexts();
+            if (areas.length > 0) {
+                if (lines.length > 0) lines.push('');
+                lines.push(prefix + areas.join('、'));
+            }
+            notes.value = lines.join('\n');
         }
 
         function togglePowerCompanyName() {
