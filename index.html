@@ -309,7 +309,7 @@
                                     <!-- 東京都DR実証（東京都蓄電池補助金選択時のみ表示） -->
                                     <div id="drJisshoArea" class="hidden ml-2 p-2 bg-orange-50 rounded-lg border border-orange-200">
                                         <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" id="drJisshoCheck" name="drJissho" value="東京都DR実証" class="h-4 w-4 text-orange-600 rounded">
+                                            <input type="checkbox" id="drJisshoCheck" name="drJissho" value="東京都DR実証" class="h-4 w-4 text-orange-600 rounded" onchange="updateDrJisshoNote(this.checked)">
                                             <span class="text-sm text-orange-800">東京都DR実証</span>
                                         </label>
                                     </div>
@@ -600,6 +600,25 @@
             } else {
                 area.classList.add('hidden');
                 document.getElementById('drJisshoCheck').checked = false;
+                updateDrJisshoNote(false);
+            }
+        }
+
+        function updateDrJisshoNote(isDrChecked) {
+            const notes = document.getElementById('notes');
+            const marker = '東京都DR実証予定';
+            if (isDrChecked) {
+                if (!notes.value.includes(marker)) {
+                    notes.value = notes.value
+                        ? notes.value.trimEnd() + '\n' + marker
+                        : marker;
+                }
+            } else {
+                notes.value = notes.value
+                    .split('\n')
+                    .filter(line => line.trim() !== marker)
+                    .join('\n')
+                    .trimEnd();
             }
         }
 
