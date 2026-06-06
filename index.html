@@ -377,6 +377,18 @@
                                 <input type="file" class="hidden" accept="image/*,.pdf" multiple onchange="addFiles(this, 'bankFiles', 'bankFileList', '通帳写真')">
                             </label>
                         </div>
+
+                        <!-- その他書類 -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-slate-700">その他書類</label>
+                            <p class="text-xs text-slate-400">東京都補助金同意書など</p>
+                            <div id="otherFileList" class="space-y-2"></div>
+                            <label class="inline-flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border border-dashed border-slate-400 bg-white hover:bg-slate-50 text-sm text-slate-600 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                ファイルを追加
+                                <input type="file" class="hidden" accept="image/*,.pdf" multiple onchange="addFiles(this, 'otherFiles', 'otherFileList', 'その他書類')">
+                            </label>
+                        </div>
                     </div>
 
                     <!-- 担当・施工情報 -->
@@ -543,7 +555,7 @@
         // =========================================================
         // ファイル管理
         // =========================================================
-        const fileStore = { contractFiles: [], idFiles: [], bankFiles: [] };
+        const fileStore = { contractFiles: [], idFiles: [], bankFiles: [], otherFiles: [] };
 
         function addFiles(input, storeKey, listId, label) {
             const files = Array.from(input.files);
@@ -873,14 +885,16 @@
                 };
 
                 // ファイルをBase64変換してdataに追加
-                const [contractB64, idB64, bankB64] = await Promise.all([
+                const [contractB64, idB64, bankB64, otherB64] = await Promise.all([
                     Promise.all(fileStore.contractFiles.map(fileToBase64)),
                     Promise.all(fileStore.idFiles.map(fileToBase64)),
-                    Promise.all(fileStore.bankFiles.map(fileToBase64))
+                    Promise.all(fileStore.bankFiles.map(fileToBase64)),
+                    Promise.all(fileStore.otherFiles.map(fileToBase64))
                 ]);
                 data.contractFiles = contractB64;
                 data.idFiles = idB64;
                 data.bankFiles = bankB64;
+                data.otherFiles = otherB64;
 
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: "POST",
