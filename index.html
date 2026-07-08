@@ -70,7 +70,7 @@
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">契約種別 <span class="text-red-500">*</span></label>
-                                <select id="contractType" required class="block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm h-12" onchange="toggleCustomerIdField()">
+                                <select id="contractType" required class="block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm h-12" onchange="updateCustomerIdField()">
                                     <option value="自社【訪販】">自社【訪販】</option>
                                     <option value="自社【AEON】">自社【AEON】</option>
                                     <option value="自社【WEB】">自社【WEB】</option>
@@ -93,6 +93,13 @@
                                 <label class="block text-sm font-medium text-slate-700 mb-1">フリガナ <span class="text-red-500">*</span></label>
                                 <input type="text" id="furigana" required class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="例：ヤマダ タロウ">
                             </div>
+                        </div>
+
+                        <div id="customerIdArea" class="bg-amber-50 p-4 rounded-md border border-amber-200">
+                            <label class="block text-sm font-medium text-amber-900 mb-1">顧客ID <span id="customerIdRequired" class="text-red-500 hidden">*</span></label>
+                            <input type="text" id="customerId" list="customerList" autocomplete="off" class="block w-full border-amber-300 rounded-md shadow-sm py-3 px-3 border" placeholder="IDまたは顧客名で検索">
+                            <datalist id="customerList"></datalist>
+                            <p id="customerIdHint" class="text-xs text-amber-700 mt-1">読み込み中...</p>
                         </div>
 
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -132,12 +139,6 @@
                             </div>
                         </div>
 
-                        <div id="customerIdArea" class="hidden bg-amber-50 p-4 rounded-md border border-amber-200">
-                            <label class="block text-sm font-medium text-amber-900 mb-1">顧客ID（催事販売） <span class="text-red-500">*</span></label>
-                            <input type="text" id="customerId" list="customerList" autocomplete="off" class="block w-full border-amber-300 rounded-md shadow-sm py-3 px-3 border" placeholder="IDまたは顧客名で検索">
-                            <datalist id="customerList"></datalist>
-                            <p id="customerIdHint" class="text-xs text-amber-700 mt-1">催事販売を選択すると顧客リストを読み込みます。</p>
-                        </div>
                     </div>
 
                     <!-- 契約・商材情報 -->
@@ -558,6 +559,8 @@
         window.onload = function() {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('contractDate').value = today;
+            updateCustomerIdField(); // 初期表示（読み込み中の状態を表示）
+            loadFormData();          // 顧客リスト・次番号を取得
         };
 
         // =========================================================
@@ -727,41 +730,72 @@
             }
         }
 
-        // 催事販売の顧客リスト（予測入力用）
+        // 顧客ID関連（催事＝予測入力 / 訪販・アライアンス＝次番号を自動補完）
         let customerList = [];
-        let customerListLoaded = false;
+        let nextIdMap = {};       // 例: { '自社【訪販】': '0100148', '自社【アライアンス】': '0300064' }
+        let formDataLoaded = false;
 
-        function toggleCustomerIdField() {
-            const type = document.getElementById('contractType').value;
-            const area = document.getElementById('customerIdArea');
-            if (type === '自社【AEON】') {
-                area.classList.remove('hidden');
-                loadCustomerList();
-            } else {
-                area.classList.add('hidden');
-                document.getElementById('customerId').value = '';
-            }
-        }
-
-        async function loadCustomerList() {
-            if (customerListLoaded) return;
+        // GASから顧客リストと次番号を取得
+        async function loadFormData() {
             const hint = document.getElementById('customerIdHint');
-            const datalist = document.getElementById('customerList');
             try {
-                hint.textContent = '顧客リストを読み込み中...';
                 const res = await fetch(GAS_WEB_APP_URL);
                 const json = await res.json();
                 customerList = json.customers || [];
+                nextIdMap = json.nextIds || {};
+                const datalist = document.getElementById('customerList');
                 datalist.innerHTML = '';
                 customerList.forEach(c => {
                     const opt = document.createElement('option');
                     opt.value = `${c.id} ${c.name}`;
                     datalist.appendChild(opt);
                 });
-                customerListLoaded = true;
-                hint.textContent = `顧客リスト ${customerList.length} 件を読み込みました。ID または顧客名で検索できます。`;
+                formDataLoaded = true;
             } catch (err) {
-                hint.textContent = '顧客リストの読み込みに失敗しました。IDを直接入力してください。';
+                if (hint) hint.textContent = 'データの読み込みに失敗しました。';
+            }
+            updateCustomerIdField();
+        }
+
+        // 契約種別に応じて顧客ID欄を切り替える
+        function updateCustomerIdField() {
+            const type = document.getElementById('contractType').value;
+            const input = document.getElementById('customerId');
+            const hint = document.getElementById('customerIdHint');
+            const required = document.getElementById('customerIdRequired');
+
+            if (type === '自社【AEON】') {
+                // 催事販売：顧客マスタから予測入力（編集可・必須）
+                input.readOnly = false;
+                input.classList.remove('bg-slate-100', 'cursor-not-allowed');
+                input.value = '';
+                input.placeholder = 'IDまたは顧客名で検索';
+                required.classList.remove('hidden');
+                hint.textContent = formDataLoaded
+                    ? `顧客リスト ${customerList.length} 件。ID または顧客名で検索して選択してください。`
+                    : '顧客リストを読み込み中...';
+            } else if (type === '自社【訪販】' || type === '自社【アライアンス】') {
+                // 訪販・アライアンス：次番号を自動補完（編集不可）
+                input.readOnly = true;
+                input.classList.add('bg-slate-100', 'cursor-not-allowed');
+                input.placeholder = '';
+                required.classList.add('hidden');
+                const nextId = nextIdMap[type];
+                if (nextId) {
+                    input.value = nextId;
+                    hint.textContent = '送信時に自動採番されます（プレビュー）。';
+                } else {
+                    input.value = '';
+                    hint.textContent = formDataLoaded ? '送信時に自動採番されます。' : '次番号を読み込み中...';
+                }
+            } else {
+                // WEB・FIT：採番なし
+                input.readOnly = true;
+                input.classList.add('bg-slate-100', 'cursor-not-allowed');
+                input.value = '';
+                input.placeholder = '（自動採番なし）';
+                required.classList.add('hidden');
+                hint.textContent = 'この契約種別では顧客IDの採番はありません。';
             }
         }
 
