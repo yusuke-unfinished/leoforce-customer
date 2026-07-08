@@ -735,24 +735,69 @@
         let nextIdMap = {};       // 例: { '自社【訪販】': '0100148', '自社【アライアンス】': '0300064' }
         let formDataLoaded = false;
 
-        // GASから顧客リストと次番号を取得
+        // タイムアウト + リトライ付き fetch（接続不安定対策）
+        async function fetchWithRetry(url, opts = {}, retries = 3, timeoutMs = 20000) {
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), timeoutMs);
+                try {
+                    const res = await fetch(url, { ...opts, signal: controller.signal });
+                    clearTimeout(timer);
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res;
+                } catch (err) {
+                    clearTimeout(timer);
+                    if (attempt === retries) throw err;
+                    // 1秒 → 2秒 → 4秒 と待ってから再試行
+                    await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+                }
+            }
+        }
+
+        // データリスト(予測入力候補)を組み立てる
+        function buildCustomerDatalist() {
+            const datalist = document.getElementById('customerList');
+            datalist.innerHTML = '';
+            customerList.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = `${c.id} ${c.name}`;
+                datalist.appendChild(opt);
+            });
+        }
+
+        // GASから顧客リストと次番号を取得（sessionStorageキャッシュ + リトライ）
         async function loadFormData() {
             const hint = document.getElementById('customerIdHint');
+
+            // ① まずブラウザキャッシュ（当日分）を利用して即時表示
             try {
-                const res = await fetch(GAS_WEB_APP_URL);
+                const cached = JSON.parse(sessionStorage.getItem('customerListCache') || 'null');
+                if (cached && Array.isArray(cached.customers) && cached.customers.length > 0) {
+                    customerList = cached.customers;
+                    buildCustomerDatalist();
+                    formDataLoaded = true;
+                    updateCustomerIdField();
+                }
+            } catch (e) { /* キャッシュ不正時は無視 */ }
+
+            // ② サーバから最新を取得（次番号は毎回最新が必要）
+            try {
+                const res = await fetchWithRetry(GAS_WEB_APP_URL);
                 const json = await res.json();
-                customerList = json.customers || [];
+                if (Array.isArray(json.customers) && json.customers.length > 0) {
+                    customerList = json.customers;
+                    buildCustomerDatalist();
+                    try {
+                        sessionStorage.setItem('customerListCache', JSON.stringify({ customers: json.customers }));
+                    } catch (e) { /* 保存失敗は無視 */ }
+                }
                 nextIdMap = json.nextIds || {};
-                const datalist = document.getElementById('customerList');
-                datalist.innerHTML = '';
-                customerList.forEach(c => {
-                    const opt = document.createElement('option');
-                    opt.value = `${c.id} ${c.name}`;
-                    datalist.appendChild(opt);
-                });
                 formDataLoaded = true;
             } catch (err) {
-                if (hint) hint.textContent = 'データの読み込みに失敗しました。';
+                // 通信失敗。キャッシュがあればそれを使い続ける
+                if (!formDataLoaded && hint) {
+                    hint.textContent = 'データの読み込みに失敗しました。時間をおいて再読み込みしてください。';
+                }
             }
             updateCustomerIdField();
         }
