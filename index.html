@@ -97,8 +97,10 @@
 
                         <div id="customerIdArea" class="bg-amber-50 p-4 rounded-md border border-amber-200">
                             <label class="block text-sm font-medium text-amber-900 mb-1">顧客ID <span id="customerIdRequired" class="text-red-500 hidden">*</span></label>
-                            <input type="text" id="customerId" list="customerList" autocomplete="off" class="block w-full border-amber-300 rounded-md shadow-sm py-3 px-3 border" placeholder="IDまたは顧客名で検索">
-                            <datalist id="customerList"></datalist>
+                            <div class="relative">
+                                <input type="text" id="customerId" autocomplete="off" oninput="onCustomerIdInput()" onfocus="onCustomerIdInput()" class="block w-full border-amber-300 rounded-md shadow-sm py-3 px-3 border" placeholder="IDまたは顧客名で検索">
+                                <div id="customerIdResults" class="hidden absolute z-20 left-0 right-0 mt-1 max-h-72 overflow-y-auto bg-white border border-amber-300 rounded-md shadow-lg"></div>
+                            </div>
                             <p id="customerIdHint" class="text-xs text-amber-700 mt-1">読み込み中...</p>
                         </div>
 
@@ -561,6 +563,14 @@
             document.getElementById('contractDate').value = today;
             updateCustomerIdField(); // 初期表示（読み込み中の状態を表示）
             loadFormData();          // 顧客リスト・次番号を取得
+
+            // 候補リスト外をタップしたら閉じる
+            document.getElementById('customerId').addEventListener('blur', function () {
+                setTimeout(() => {
+                    const box = document.getElementById('customerIdResults');
+                    if (box) box.classList.add('hidden');
+                }, 200);
+            });
         };
 
         // =========================================================
@@ -734,27 +744,106 @@
         let customerList = [];
         let nextIdMap = {};       // 例: { '自社【訪販】': '0100148', '自社【アライアンス】': '0300064' }
         let formDataLoaded = false;
+        let selectedCustomerId = ''; // 催事販売で選択された顧客ID
 
-        // GASから顧客リストと次番号を取得
+        // タイムアウト + リトライ付き fetch（接続不安定対策）
+        async function fetchWithRetry(url, opts = {}, retries = 3, timeoutMs = 20000) {
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), timeoutMs);
+                try {
+                    const res = await fetch(url, { ...opts, signal: controller.signal });
+                    clearTimeout(timer);
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res;
+                } catch (err) {
+                    clearTimeout(timer);
+                    if (attempt === retries) throw err;
+                    // 1秒 → 2秒 → 4秒 と待ってから再試行
+                    await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+                }
+            }
+        }
+
+        // GASから顧客リストと次番号を取得（sessionStorageキャッシュ + リトライ）
         async function loadFormData() {
             const hint = document.getElementById('customerIdHint');
+
+            // ① まずブラウザキャッシュ（当日分）を利用して即時表示
             try {
-                const res = await fetch(GAS_WEB_APP_URL);
+                const cached = JSON.parse(sessionStorage.getItem('customerListCache') || 'null');
+                if (cached && Array.isArray(cached.customers) && cached.customers.length > 0) {
+                    customerList = cached.customers;
+                    formDataLoaded = true;
+                    updateCustomerIdField();
+                }
+            } catch (e) { /* キャッシュ不正時は無視 */ }
+
+            // ② サーバから最新を取得（次番号は毎回最新が必要）
+            try {
+                const res = await fetchWithRetry(GAS_WEB_APP_URL);
                 const json = await res.json();
-                customerList = json.customers || [];
+                if (Array.isArray(json.customers) && json.customers.length > 0) {
+                    customerList = json.customers;
+                    try {
+                        sessionStorage.setItem('customerListCache', JSON.stringify({ customers: json.customers }));
+                    } catch (e) { /* 保存失敗は無視 */ }
+                }
                 nextIdMap = json.nextIds || {};
-                const datalist = document.getElementById('customerList');
-                datalist.innerHTML = '';
-                customerList.forEach(c => {
-                    const opt = document.createElement('option');
-                    opt.value = `${c.id} ${c.name}`;
-                    datalist.appendChild(opt);
-                });
                 formDataLoaded = true;
             } catch (err) {
-                if (hint) hint.textContent = 'データの読み込みに失敗しました。';
+                // 通信失敗。キャッシュがあればそれを使い続ける
+                if (!formDataLoaded && hint) {
+                    hint.textContent = 'データの読み込みに失敗しました。時間をおいて再読み込みしてください。';
+                }
             }
             updateCustomerIdField();
+        }
+
+        // HTMLエスケープ
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+        }
+
+        // 顧客ID入力時の候補表示（名前・IDの部分一致で該当者を全員表示）
+        function onCustomerIdInput() {
+            const type = document.getElementById('contractType').value;
+            const box = document.getElementById('customerIdResults');
+            if (type !== '自社【AEON】') { box.classList.add('hidden'); return; }
+
+            const input = document.getElementById('customerId');
+            const q = input.value.trim().toLowerCase();
+            selectedCustomerId = ''; // 入力が変わったら選択解除
+
+            if (!q) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+
+            const matches = customerList.filter(c =>
+                (c.name && c.name.toLowerCase().includes(q)) ||
+                (c.id && c.id.toLowerCase().includes(q))
+            );
+
+            if (matches.length === 0) {
+                box.innerHTML = '<div class="px-3 py-2 text-sm text-slate-400">該当する顧客が見つかりません</div>';
+                box.classList.remove('hidden');
+                return;
+            }
+
+            const MAX = 300; // 表示上限
+            const shown = matches.slice(0, MAX);
+            box.innerHTML = shown.map(c =>
+                `<div class="customer-option px-3 py-3 text-sm border-b border-slate-100 cursor-pointer hover:bg-amber-50 active:bg-amber-100" data-id="${escapeHtml(c.id)}" data-label="${escapeHtml(c.id + ' ' + c.name)}"><span class="text-slate-400">${escapeHtml(c.id)}</span>　${escapeHtml(c.name)}</div>`
+            ).join('') + (matches.length > MAX ? `<div class="px-3 py-2 text-xs text-slate-400">他 ${matches.length - MAX} 件… さらに絞り込んでください</div>` : '');
+            box.classList.remove('hidden');
+
+            box.querySelectorAll('.customer-option').forEach(el => {
+                // mousedownでinputのblurより先に選択を確定
+                el.addEventListener('mousedown', function (ev) {
+                    ev.preventDefault();
+                    input.value = this.getAttribute('data-label');
+                    selectedCustomerId = this.getAttribute('data-id');
+                    box.classList.add('hidden');
+                });
+            });
         }
 
         // 契約種別に応じて顧客ID欄を切り替える
@@ -763,6 +852,11 @@
             const input = document.getElementById('customerId');
             const hint = document.getElementById('customerIdHint');
             const required = document.getElementById('customerIdRequired');
+
+            // 種別が変わったら選択と候補リストをリセット
+            selectedCustomerId = '';
+            const resultsBox = document.getElementById('customerIdResults');
+            if (resultsBox) { resultsBox.classList.add('hidden'); resultsBox.innerHTML = ''; }
 
             if (type === '自社【AEON】') {
                 // 催事販売：顧客マスタから予測入力（編集可・必須）
@@ -917,7 +1011,8 @@
                 const contractTypeVal = document.getElementById('contractType').value;
                 let customerId = '';
                 if (contractTypeVal === '自社【AEON】') {
-                    customerId = resolveCustomerId(document.getElementById('customerId').value);
+                    // 候補から選択された値を優先。未選択なら入力文字列から特定
+                    customerId = selectedCustomerId || resolveCustomerId(document.getElementById('customerId').value);
                 }
 
                 // バリデーション
