@@ -201,6 +201,7 @@
                                 <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="products" value="ecocute" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">エコキュート</span></label>
                                 <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="products" value="v2h" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">V2H</span></label>
                                 <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="products" value="ih" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">IH</span></label>
+                                <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors"><input type="checkbox" name="products" value="hems" class="h-4 w-4 text-blue-600 rounded" onchange="toggleDetails()"> <span class="ml-3 text-sm">HEMS</span></label>
                             </div>
                         </div>
 
@@ -307,6 +308,40 @@
                             <div id="detail-ih" class="hidden bg-white p-4 rounded-md border border-red-200 shadow-sm fade-in">
                                 <h4 class="font-bold text-red-700 mb-3">🍳 IH詳細</h4>
                                 <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="ihManufacturer" class="w-full border p-2 rounded" placeholder="例：パナソニック"></div>
+                            </div>
+
+                            <!-- HEMS詳細 -->
+                            <div id="detail-hems" class="hidden bg-white p-4 rounded-md border border-teal-200 shadow-sm fade-in">
+                                <h4 class="font-bold text-teal-700 mb-3">📊 HEMS詳細</h4>
+                                <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="hemsManufacturer" class="w-full border p-2 rounded" placeholder="例：パナソニック"></div>
+                            </div>
+                        </div>
+
+                        <!-- 延長保証 -->
+                        <div class="mt-4 border-t border-slate-200 pt-4">
+                            <label class="flex items-center p-3 rounded-lg border border-slate-300 bg-white cursor-pointer hover:bg-slate-50 transition-colors">
+                                <input type="checkbox" id="hasExtendedWarranty" class="h-4 w-4 text-green-600 rounded" onchange="toggleWarranty()">
+                                <span class="ml-3 text-sm font-medium text-slate-700">延長保証あり</span>
+                            </label>
+                            <div id="warrantyArea" class="hidden mt-3 bg-green-50 p-4 rounded-md border border-green-200 fade-in">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-green-900 mb-1">メーカー延長保証</label>
+                                        <select id="makerWarranty" class="block w-full py-2 px-3 border border-green-300 bg-white rounded-md shadow-sm h-12">
+                                            <option value="">選択してください</option>
+                                            <option value="5年">5年</option>
+                                            <option value="10年">10年</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-green-900 mb-1">ワランティ延長保証</label>
+                                        <select id="warrantyExtension" class="block w-full py-2 px-3 border border-green-300 bg-white rounded-md shadow-sm h-12">
+                                            <option value="">選択してください</option>
+                                            <option value="5年">5年</option>
+                                            <option value="10年">10年</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -914,6 +949,18 @@
             });
         }
 
+        function toggleWarranty() {
+            const checked = document.getElementById('hasExtendedWarranty').checked;
+            const area = document.getElementById('warrantyArea');
+            if (checked) {
+                area.classList.remove('hidden');
+            } else {
+                area.classList.add('hidden');
+                document.getElementById('makerWarranty').value = '';
+                document.getElementById('warrantyExtension').value = '';
+            }
+        }
+
         function toggleConstructionDate() {
             const checkbox = document.getElementById('isConstructionUndecided');
             const input = document.getElementById('constructionDate');
@@ -1071,6 +1118,11 @@
                     ecoCuteCapacity: document.getElementById('ecoCuteCapacity').value,
                     v2hManufacturer: document.getElementById('v2hManufacturer').value,
                     ihManufacturer: document.getElementById('ihManufacturer').value,
+                    hemsManufacturer: document.getElementById('hemsManufacturer').value,
+                    // ★ 延長保証
+                    hasExtendedWarranty: document.getElementById('hasExtendedWarranty').checked,
+                    makerWarranty: document.getElementById('makerWarranty').value,
+                    warrantyExtension: document.getElementById('warrantyExtension').value,
                     apStaffName: document.getElementById('apStaffName').value,
                     clStaffName: document.getElementById('clStaffName').value,
                     surveyDate: document.getElementById('surveyDate').value,
