@@ -1075,6 +1075,12 @@
                 if (document.getElementById('powerCompanyType').value === '新電力' && !document.getElementById('powerCompanyName').value.trim()) {
                     validationErrors.push('売電先が「新電力」の場合、「電力会社名」を入力してください。');
                 }
+                // 延長保証あり → メーカー/ワランティのどちらか年数選択が必須
+                if (document.getElementById('hasExtendedWarranty').checked
+                    && !document.getElementById('makerWarranty').value
+                    && !document.getElementById('warrantyExtension').value) {
+                    validationErrors.push('延長保証ありの場合、「メーカー延長保証」または「ワランティ延長保証」のいずれかの年数を選択してください。');
+                }
 
                 if (validationErrors.length > 0) {
                     errorText.innerHTML = validationErrors.map(e => `・${e}`).join('<br>');
