@@ -313,7 +313,22 @@
                             <!-- HEMS詳細 -->
                             <div id="detail-hems" class="hidden bg-white p-4 rounded-md border border-teal-200 shadow-sm fade-in">
                                 <h4 class="font-bold text-teal-700 mb-3">📊 HEMS詳細</h4>
-                                <div><label class="text-xs text-slate-500">メーカー名</label><input type="text" id="hemsManufacturer" class="w-full border p-2 rounded" placeholder="例：パナソニック"></div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="text-xs text-slate-500">メーカー名</label>
+                                        <select id="hemsManufacturer" class="w-full border p-2 rounded h-10" onchange="toggleHemsOther()">
+                                            <option value="">選択してください</option>
+                                            <option value="CUBE J">CUBE J</option>
+                                            <option value="HEMS">HEMS</option>
+                                            <option value="その他">その他</option>
+                                        </select>
+                                    </div>
+                                    <!-- その他メーカー入力 -->
+                                    <div id="hemsManufacturerOtherArea" class="hidden">
+                                        <label class="text-xs text-slate-500">メーカー名（その他）</label>
+                                        <input type="text" id="hemsManufacturerOther" class="w-full border p-2 rounded" placeholder="メーカー名を入力してください">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -961,6 +976,17 @@
             }
         }
 
+        function toggleHemsOther() {
+            const val = document.getElementById('hemsManufacturer').value;
+            const area = document.getElementById('hemsManufacturerOtherArea');
+            if (val === 'その他') {
+                area.classList.remove('hidden');
+            } else {
+                area.classList.add('hidden');
+                document.getElementById('hemsManufacturerOther').value = '';
+            }
+        }
+
         function toggleConstructionDate() {
             const checkbox = document.getElementById('isConstructionUndecided');
             const input = document.getElementById('constructionDate');
@@ -1054,6 +1080,12 @@
                     ? document.getElementById('ecoCuteModelOther').value
                     : document.getElementById('ecoCuteModel').value;
 
+                // ★ HEMS：メーカーの取得（その他対応）
+                const hemsMakerSelected = document.getElementById('hemsManufacturer').value;
+                const hemsManufacturer = hemsMakerSelected === 'その他'
+                    ? document.getElementById('hemsManufacturerOther').value
+                    : hemsMakerSelected;
+
                 // 催事販売の場合は顧客IDを特定
                 const contractTypeVal = document.getElementById('contractType').value;
                 let customerId = '';
@@ -1124,7 +1156,7 @@
                     ecoCuteCapacity: document.getElementById('ecoCuteCapacity').value,
                     v2hManufacturer: document.getElementById('v2hManufacturer').value,
                     ihManufacturer: document.getElementById('ihManufacturer').value,
-                    hemsManufacturer: document.getElementById('hemsManufacturer').value,
+                    hemsManufacturer,
                     // ★ 延長保証
                     hasExtendedWarranty: document.getElementById('hasExtendedWarranty').checked,
                     makerWarranty: document.getElementById('makerWarranty').value,
