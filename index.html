@@ -381,28 +381,30 @@
                                         <label class="text-xs text-slate-500">メーカー名（その他）</label>
                                         <input type="text" id="hemsManufacturerOther" class="w-full border p-2 rounded" placeholder="メーカー名を入力してください">
                                     </div>
-                                    <!-- Bルート申請有無 -->
-                                    <div>
-                                        <label class="text-xs text-slate-500">Bルート申請有無</label>
-                                        <select id="brouteApplication" class="w-full border p-2 rounded h-10" onchange="toggleBrouteStatus()">
-                                            <option value="">選択してください</option>
-                                            <option value="有り">有り</option>
-                                            <option value="なし">なし</option>
-                                        </select>
-                                    </div>
-                                    <!-- Bルート申請ステータス（有りのとき表示） -->
-                                    <div id="brouteStatusArea" class="hidden">
-                                        <label class="text-xs text-slate-500">Bルート申請ステータス</label>
-                                        <select id="brouteStatus" class="w-full border p-2 rounded h-10" onchange="toggleBrouteReason()">
-                                            <option value="">選択してください</option>
-                                            <option value="未申請">未申請</option>
-                                            <option value="申請済み">申請済み</option>
-                                        </select>
-                                    </div>
-                                    <!-- 未申請理由（未申請のとき表示） -->
-                                    <div id="brouteReasonArea" class="hidden">
-                                        <label class="text-xs text-slate-500">未申請理由</label>
-                                        <textarea id="brouteReason" rows="2" class="w-full border p-2 rounded" placeholder="未申請の理由を入力してください"></textarea>
+                                    <!-- Bルート申請（HEMSメーカーがCUBE Jのときのみ表示） -->
+                                    <div id="brouteArea" class="hidden space-y-3">
+                                        <div>
+                                            <label class="text-xs text-slate-500">Bルート申請有無</label>
+                                            <select id="brouteApplication" class="w-full border p-2 rounded h-10" onchange="toggleBrouteStatus()">
+                                                <option value="">選択してください</option>
+                                                <option value="有り">有り</option>
+                                                <option value="なし">なし</option>
+                                            </select>
+                                        </div>
+                                        <!-- Bルート申請ステータス（有りのとき表示） -->
+                                        <div id="brouteStatusArea" class="hidden">
+                                            <label class="text-xs text-slate-500">Bルート申請ステータス</label>
+                                            <select id="brouteStatus" class="w-full border p-2 rounded h-10" onchange="toggleBrouteReason()">
+                                                <option value="">選択してください</option>
+                                                <option value="未申請">未申請</option>
+                                                <option value="申請済み">申請済み</option>
+                                            </select>
+                                        </div>
+                                        <!-- 未申請理由（未申請のとき表示） -->
+                                        <div id="brouteReasonArea" class="hidden">
+                                            <label class="text-xs text-slate-500">未申請理由</label>
+                                            <textarea id="brouteReason" rows="2" class="w-full border p-2 rounded" placeholder="未申請の理由を入力してください"></textarea>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1080,6 +1082,18 @@
             } else {
                 area.classList.add('hidden');
                 document.getElementById('hemsManufacturerOther').value = '';
+            }
+            // Bルート申請は「CUBE J」を選んだときのみ表示
+            const brouteArea = document.getElementById('brouteArea');
+            if (val === 'CUBE J') {
+                brouteArea.classList.remove('hidden');
+            } else {
+                brouteArea.classList.add('hidden');
+                document.getElementById('brouteApplication').value = '';
+                document.getElementById('brouteStatus').value = '';
+                document.getElementById('brouteReason').value = '';
+                document.getElementById('brouteStatusArea').classList.add('hidden');
+                document.getElementById('brouteReasonArea').classList.add('hidden');
             }
         }
 
