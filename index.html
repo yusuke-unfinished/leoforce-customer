@@ -872,7 +872,18 @@
         async function loadFormData() {
             const hint = document.getElementById('customerIdHint');
 
-            // ① まずブラウザキャッシュ（当日分）を利用して即時表示
+            // ① 次番号だけを軽量に先取りして、採番プレビューを即表示
+            //    （重い顧客マスタ読み込みを待たず、訪販・アライアンスの番号を先に出す）
+            try {
+                const res = await fetchWithRetry(GAS_WEB_APP_URL + '?mode=nextids');
+                const json = await res.json();
+                if (json.nextIds) {
+                    nextIdMap = json.nextIds;
+                    updateCustomerIdField();
+                }
+            } catch (e) { /* 失敗時は下の全体取得に任せる */ }
+
+            // ② ブラウザキャッシュ（当日分）で催事の顧客リストを即時表示
             try {
                 const cached = JSON.parse(sessionStorage.getItem('customerListCache') || 'null');
                 if (cached && Array.isArray(cached.customers) && cached.customers.length > 0) {
@@ -882,7 +893,7 @@
                 }
             } catch (e) { /* キャッシュ不正時は無視 */ }
 
-            // ② サーバから最新を取得（次番号は毎回最新が必要）
+            // ③ サーバから最新を取得（顧客マスタ + 次番号）
             try {
                 const res = await fetchWithRetry(GAS_WEB_APP_URL);
                 const json = await res.json();
@@ -892,7 +903,7 @@
                         sessionStorage.setItem('customerListCache', JSON.stringify({ customers: json.customers }));
                     } catch (e) { /* 保存失敗は無視 */ }
                 }
-                nextIdMap = json.nextIds || {};
+                nextIdMap = json.nextIds || nextIdMap;
                 formDataLoaded = true;
             } catch (err) {
                 // 通信失敗。キャッシュがあればそれを使い続ける
