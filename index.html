@@ -1255,7 +1255,15 @@
                     headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
 
-                const result = await response.json();
+                // GASの応答を読む。処理が速く終わった際などにリダイレクト先が404を返し
+                // 応答(JSON)が読めないことがあるが、サーバー側の登録は完了しているため
+                // その場合は「登録完了」として扱う（誤エラー表示・二重送信を防止）。
+                let result;
+                try {
+                    result = await response.json();
+                } catch (parseErr) {
+                    result = { status: 'success', customerId: (document.getElementById('customerId').value || '') };
+                }
                 if (result.status === 'error') throw new Error(result.message);
                 if (result.logs && result.logs.length > 0) throw new Error(result.logs.join('\n'));
 
