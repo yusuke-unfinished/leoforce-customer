@@ -381,6 +381,29 @@
                                         <label class="text-xs text-slate-500">メーカー名（その他）</label>
                                         <input type="text" id="hemsManufacturerOther" class="w-full border p-2 rounded" placeholder="メーカー名を入力してください">
                                     </div>
+                                    <!-- Bルート申請有無 -->
+                                    <div>
+                                        <label class="text-xs text-slate-500">Bルート申請有無</label>
+                                        <select id="brouteApplication" class="w-full border p-2 rounded h-10" onchange="toggleBrouteStatus()">
+                                            <option value="">選択してください</option>
+                                            <option value="有り">有り</option>
+                                            <option value="なし">なし</option>
+                                        </select>
+                                    </div>
+                                    <!-- Bルート申請ステータス（有りのとき表示） -->
+                                    <div id="brouteStatusArea" class="hidden">
+                                        <label class="text-xs text-slate-500">Bルート申請ステータス</label>
+                                        <select id="brouteStatus" class="w-full border p-2 rounded h-10" onchange="toggleBrouteReason()">
+                                            <option value="">選択してください</option>
+                                            <option value="未申請">未申請</option>
+                                            <option value="申請済み">申請済み</option>
+                                        </select>
+                                    </div>
+                                    <!-- 未申請理由（未申請のとき表示） -->
+                                    <div id="brouteReasonArea" class="hidden">
+                                        <label class="text-xs text-slate-500">未申請理由</label>
+                                        <textarea id="brouteReason" rows="2" class="w-full border p-2 rounded" placeholder="未申請の理由を入力してください"></textarea>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1026,6 +1049,15 @@
                 const detailEl = document.getElementById('detail-' + cb.value);
                 if (detailEl) cb.checked ? detailEl.classList.remove('hidden') : detailEl.classList.add('hidden');
             });
+            // HEMS未選択時はBルート関連の入力をリセット
+            const hemsCb = document.querySelector('input[name="products"][value="hems"]');
+            if (!hemsCb || !hemsCb.checked) {
+                document.getElementById('brouteApplication').value = '';
+                document.getElementById('brouteStatus').value = '';
+                document.getElementById('brouteReason').value = '';
+                document.getElementById('brouteStatusArea').classList.add('hidden');
+                document.getElementById('brouteReasonArea').classList.add('hidden');
+            }
         }
 
         function toggleWarranty() {
@@ -1048,6 +1080,32 @@
             } else {
                 area.classList.add('hidden');
                 document.getElementById('hemsManufacturerOther').value = '';
+            }
+        }
+
+        // Bルート申請有無 → 「有り」でステータス欄を表示
+        function toggleBrouteStatus() {
+            const val = document.getElementById('brouteApplication').value;
+            const area = document.getElementById('brouteStatusArea');
+            if (val === '有り') {
+                area.classList.remove('hidden');
+            } else {
+                area.classList.add('hidden');
+                document.getElementById('brouteStatus').value = '';
+            }
+            toggleBrouteReason();
+        }
+
+        // Bルート申請ステータス → 「未申請」で未申請理由欄を表示
+        function toggleBrouteReason() {
+            const status = document.getElementById('brouteStatus').value;
+            const applied = document.getElementById('brouteApplication').value;
+            const area = document.getElementById('brouteReasonArea');
+            if (applied === '有り' && status === '未申請') {
+                area.classList.remove('hidden');
+            } else {
+                area.classList.add('hidden');
+                document.getElementById('brouteReason').value = '';
             }
         }
 
@@ -1222,6 +1280,9 @@
                     v2hManufacturer: document.getElementById('v2hManufacturer').value,
                     ihManufacturer: document.getElementById('ihManufacturer').value,
                     hemsManufacturer,
+                    brouteApplication: document.getElementById('brouteApplication').value,
+                    brouteStatus: document.getElementById('brouteStatus').value,
+                    brouteReason: document.getElementById('brouteReason').value,
                     // ★ 延長保証
                     hasExtendedWarranty: document.getElementById('hasExtendedWarranty').checked,
                     makerWarranty: document.getElementById('makerWarranty').value,
