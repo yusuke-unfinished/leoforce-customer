@@ -107,7 +107,11 @@
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                             <div class="sm:col-span-1">
                                 <label class="block text-sm font-medium text-slate-700 mb-1">郵便番号</label>
-                                <input type="text" id="postalCode" class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="123-4567">
+                                <div class="flex gap-2">
+                                    <input type="text" id="postalCode" class="block w-full border-slate-300 rounded-md shadow-sm py-3 px-3 border" placeholder="1234567（ハイフンなし）">
+                                    <button type="button" onclick="searchAddress()" class="shrink-0 px-3 rounded-md bg-slate-600 text-white text-sm font-medium hover:bg-slate-700">住所検索</button>
+                                </div>
+                                <p id="postalCodeMsg" class="text-xs mt-1 hidden"></p>
                             </div>
                             <div class="sm:col-span-1">
                                 <label class="block text-sm font-medium text-slate-700 mb-1">都道府県 <span class="text-red-500">*</span></label>
@@ -1121,6 +1125,46 @@
             } else {
                 area.classList.add('hidden');
                 document.getElementById('brouteReason').value = '';
+            }
+        }
+
+        // 郵便番号から住所を自動補完（zipcloud API・「住所検索」ボタン）
+        async function searchAddress() {
+            const input = document.getElementById('postalCode');
+            const msg = document.getElementById('postalCodeMsg');
+            const raw = input.value.trim();
+            const showMsg = (text, color) => {
+                msg.textContent = text;
+                msg.className = 'text-xs mt-1 ' + color;
+                msg.classList.remove('hidden');
+            };
+
+            // ハイフンが含まれていたら警告
+            if (/[-‐－ー―]/.test(raw)) {
+                showMsg('ハイフンなしで入力してください（例：1234567）', 'text-red-600');
+                return;
+            }
+            // 7桁の数字チェック
+            if (!/^\d{7}$/.test(raw)) {
+                showMsg('郵便番号は7桁の数字で入力してください', 'text-red-600');
+                return;
+            }
+
+            showMsg('住所を検索中...', 'text-slate-500');
+            try {
+                const res = await fetch('https://zipcloud.ibsnet.co.jp/api/search?zipcode=' + raw);
+                const json = await res.json();
+                if (json.status !== 200 || !json.results || json.results.length === 0) {
+                    showMsg('該当する住所が見つかりませんでした', 'text-red-600');
+                    return;
+                }
+                const r = json.results[0];
+                // 都道府県プルダウンを自動選択、住所欄に市区町村＋町域を上書き
+                document.getElementById('prefecture').value = r.address1;
+                document.getElementById('address').value = r.address2 + r.address3;
+                showMsg('住所を補完しました。番地・建物名を続けて入力してください', 'text-green-600');
+            } catch (err) {
+                showMsg('住所検索に失敗しました。お手数ですが手入力してください', 'text-red-600');
             }
         }
 
