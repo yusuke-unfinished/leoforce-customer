@@ -376,6 +376,7 @@
                                         <select id="hemsManufacturer" class="w-full border p-2 rounded h-10" onchange="toggleHemsOther()">
                                             <option value="">選択してください</option>
                                             <option value="CUBE J">CUBE J</option>
+                                            <option value="CUBEJ(エネミル)">CUBEJ(エネミル)</option>
                                             <option value="SHARP">SHARP</option>
                                             <option value="その他">その他</option>
                                         </select>
@@ -1088,9 +1089,9 @@
                 area.classList.add('hidden');
                 document.getElementById('hemsManufacturerOther').value = '';
             }
-            // Bルート申請は「CUBE J」を選んだときのみ表示
+            // Bルート申請は「CUBE J」「CUBEJ(エネミル)」を選んだときのみ表示
             const brouteArea = document.getElementById('brouteArea');
-            if (val === 'CUBE J') {
+            if (val === 'CUBE J' || val === 'CUBEJ(エネミル)') {
                 brouteArea.classList.remove('hidden');
             } else {
                 brouteArea.classList.add('hidden');
